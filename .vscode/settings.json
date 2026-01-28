@@ -18,6 +18,26 @@
         "SlashCmdList",
         "UISpecialFrames",
         "GetUnitName",
-        "ReloadUI"
+        "ReloadUI",
+        "RAID_CLASS_COLORS",
+        "LE_EXPANSION_LEVEL_CURRENT",
+        "LE_EXPANSION_WAR_WITHIN",
+        "PowerBarColor",
+        "TooltipUtil",
+        "MapUtil",
+        "PixelUtil",
+        "Settings",
+        "ChatFrame1EditBox",
+        "DEFAULT_CHAT_FRAME",
+        "ACCEPT",
+        "ColorPickerFrame",
+        "NOT_BOUND",
+        "OKAY",
+        "SetDesaturation",
+        "CLOSE",
+        "CANCEL",
+        "SELECTED_CHAT_FRAME",
+        "FONT_COLOR_CODE_CLOSE",
+        "hash_SlashCmdList"
     ]
 }

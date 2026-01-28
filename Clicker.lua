@@ -1,6 +1,7 @@
 -- /dump select(4, GetBuildInfo()) use to get updated toc interface version number
 if not ClickerDB then
     ClickerDB = {
+        settingsKeys = {},
         clickerEnabled = true,
         toastEnabled = true,
         muted = false,
@@ -67,6 +68,38 @@ settingsFrame:SetScript("OnDragStop", function(self)
 	self:StopMovingOrSizing()
 end)
 
+local checkboxes = 0
+local function CreateCheckbox(checkboxText, key, checkboxTooltip)
+    local checkbox = CreateFrame("CheckButton", "ClickerCheckboxID" .. checkboxes, settingsFrame, "ChatConfigCheckButtonTemplate")
+    checkbox.Text:SetText(checkboxText)
+    checkbox:SetPoint("TOPLEFT", settingsFrame, "TOPLEFT", 10, -30 - (checkboxes * -30))
+    
+    if ClickerDB.settingsKeys[key] == nil then
+        ClickerDB.settingsKeys[key] = true
+    end
+    checkbox:SetChecked(ClickerDB.settingsKeys[key.var])
+    
+    checkbox.SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(checkboxTooltip, nil, nil, nil, nil, true)
+    end)
+    
+    checkbox:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+
+    checkbox.tooltip = key.tooltip
+    
+    checkbox:SetScript("OnClick", function(self)
+        ClickerDB.settingsKeys[key.var] = self:GetChecked()
+    end)
+
+    checkboxes = checkboxes + 1
+    return checkbox
+end
+
+
+
 local settings = {
     {
         label = "Toggle Clicker",
@@ -127,7 +160,7 @@ function SlashCmdList.CLICKER(msg, editbox)
         else
             settingsFrame:Show()
         end
-        
+
     elseif command == "toast" then
         -- Toggle toast functionality here
         local clickerToast = not ClickerDB.toastEnabled
@@ -217,6 +250,7 @@ end
 -- Hide the frame when the user presses the Escape key
 table.insert(UISpecialFrames, "ClickerMainFrame")
 
+--Magic happens here! Event Listener Frame and functions
 local eventListenerFrame = CreateFrame("Frame", "ClickerEventListenerFrame", UIParent)
 local function eventHandler(self, event, ...)
     if event == "PLAYER_LEVEL_UP" then
