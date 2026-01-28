@@ -1,2 +1,2 @@
 # clicker
-A clicker addon for World of Warcraft to reinforce good gameplay habits! :3
+This addon uses a clicker to reinforce positive gameplay habits or as a reward for completing achievements, levelling, looting certain items, or other configurable events!
