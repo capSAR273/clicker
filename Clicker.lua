@@ -16,6 +16,7 @@ mainFrame:SetScript("OnDragStop", function(self) mainFrame.StopMovingOrSizing(se
 mainFrame:SetScript("OnShow", function(self)
     print("Clicker Main Frame Shown")
 end)
+
 SLASH_CLICKER1 = "/clicker"
 SlashCmdList["CLICKER"] = function()
     if mainFrame:IsShown() then
@@ -24,3 +25,12 @@ SlashCmdList["CLICKER"] = function()
         mainFrame:Show()
     end
 end
+
+SLASH_CLICKER2 = "/clickermute"
+SlashCmdList["CLICKERMUTE"] = function()
+   -- Toggle mute functionality here
+    print("Clicker Mute Toggled")
+end
+
+-- Hide the frame when the user presses the Escape key
+table.insert(UISpecialFrames, "ClickerMainFrame")
