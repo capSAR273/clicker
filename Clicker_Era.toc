@@ -5,7 +5,7 @@
 ## Version: 0.0.1
 ## RequiredDeps:
 ## SavedVariables:
-## SavedVariablesPerCharacter:
+## SavedVariablesPerCharacter: ClickerDB
 ## IconTexture: Interface\AddOns\Clicker\Media\clicker64.tga
 
 ## X-Curse-Project-ID: 1447376
