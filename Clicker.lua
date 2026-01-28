@@ -1,6 +1,8 @@
 -- /dump select(4, GetBuildInfo()) use to get updated toc interface version number
 if not ClickerDB then
     ClickerDB = {
+        clickerEnabled = true,
+        toastEnabled = true,
         muted = false,
         useClick = "clicker",
         useChannel = "Master",
@@ -9,37 +11,94 @@ if not ClickerDB then
 end
 
 print ("Clicker Loaded Successfully")
-local mainFrame = CreateFrame("Frame", "ClickerMainFrame", UIParent, "BasicFrameTemplateWithInset")
-mainFrame:SetSize(300, 300)
-mainFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-mainFrame.TitleBg:SetHeight(30)
-mainFrame.title = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-mainFrame.title:SetPoint("TOPLEFT", mainFrame.TitleBg, "TOPLEFT", 5, -3)
-mainFrame.title:SetText("Clicker Addon Settings")
+local debugFrame = CreateFrame("Frame", "ClickerMainFrame", UIParent, "BasicFrameTemplateWithInset")
+debugFrame:SetSize(350, 350)
+debugFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+debugFrame.TitleBg:SetHeight(30)
+debugFrame.title = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+debugFrame.title:SetPoint("TOPLEFT", debugFrame.TitleBg, "TOPLEFT", 5, -3)
+debugFrame.title:SetText("Clicker Debug Info")
 
-mainFrame.muted = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-mainFrame.muted:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 10, -40)
-mainFrame.muted:SetText("Muted: " .. tostring(ClickerDB.muted))
-mainFrame.channel = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-mainFrame.channel:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 10, -70)
-mainFrame.channel:SetText("Channel: " .. ClickerDB.useChannel)  
-mainFrame.volume = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-mainFrame.volume:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 10, -100)
-mainFrame.volume:SetText("Volume: " .. ClickerDB.useClick .. ".ogg")
-mainFrame.numClicks = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-mainFrame.numClicks:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 10, -130)
-mainFrame.numClicks:SetText("Total Clicks: " .. ClickerDB.numClicks)
+debugFrame.muted = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+debugFrame.muted:SetPoint("TOPLEFT", debugFrame, "TOPLEFT", 10, -40)
+debugFrame.muted:SetText("Muted: " .. tostring(ClickerDB.muted))
+debugFrame.channel = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+debugFrame.channel:SetPoint("TOPLEFT", debugFrame, "TOPLEFT", 10, -70)
+debugFrame.channel:SetText("Channel: " .. ClickerDB.useChannel)  
+debugFrame.volume = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+debugFrame.volume:SetPoint("TOPLEFT", debugFrame, "TOPLEFT", 10, -100)
+debugFrame.volume:SetText("Volume: " .. ClickerDB.useClick .. ".ogg")
+debugFrame.numClicks = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+debugFrame.numClicks:SetPoint("TOPLEFT", debugFrame, "TOPLEFT", 10, -130)
+debugFrame.numClicks:SetText("Total Clicks: " .. ClickerDB.numClicks)
 
-mainFrame:Hide()
-mainFrame:EnableMouse(true)
-mainFrame:SetMovable(true)
-mainFrame:RegisterForDrag("LeftButton")
-mainFrame:SetScript("OnDragStart", function(self) mainFrame.StartMoving(self) end)
-mainFrame:SetScript("OnDragStop", function(self) mainFrame.StopMovingOrSizing(self) end)
+debugFrame:Hide()
+debugFrame:EnableMouse(true)
+debugFrame:SetMovable(true)
+debugFrame:RegisterForDrag("LeftButton")
+debugFrame:SetScript("OnDragStart", function(self) debugFrame.StartMoving(self) end)
+debugFrame:SetScript("OnDragStop", function(self) debugFrame.StopMovingOrSizing(self) end)
 
-mainFrame:SetScript("OnShow", function(self)
+debugFrame:SetScript("OnShow", function(self)
+    debugFrame.muted:SetText("Muted: " .. tostring(ClickerDB.muted))
+    debugFrame.channel:SetText("Channel: " .. ClickerDB.useChannel)
+    debugFrame.volume:SetText("Volume: " .. ClickerDB.useClick .. ".ogg")
+    debugFrame.numClicks:SetText("Total Clicks: " .. ClickerDB.numClicks)
     print("Clicker Main Frame Shown")
 end)
+
+--Clicker Settings Frame and Config
+local settingsFrame = CreateFrame("Frame", "ClickerSettingsFrame", UIParent, "BasicFrameTemplateWithInset")
+settingsFrame:SetSize(400, 400)
+settingsFrame:SetPoint("CENTER")
+settingsFrame.TitleBg:SetHeight(30)
+settingsFrame.title = settingsFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+settingsFrame.title:SetPoint("CENTER", settingsFrame.TitleBg, "CENTER", 0, -3)
+settingsFrame.title:SetText("Clicker Settings")
+settingsFrame:Hide()
+settingsFrame:EnableMouse(true)
+settingsFrame:SetMovable(true)
+settingsFrame:RegisterForDrag("LeftButton")
+settingsFrame:SetScript("OnDragStart", function(self)
+	self:StartMoving()
+end)
+
+settingsFrame:SetScript("OnDragStop", function(self)
+	self:StopMovingOrSizing()
+end)
+
+local settings = {
+    {
+        label = "Toggle Clicker",
+        description = "Turn the Clicker addon functions on or off.",
+        tooltip = "Toggle Clicker Addon",
+        var = "clickerEnabled",
+    },
+    {
+        label = "Toggle Greeting Toast",
+        description = "Enable to see a greeting toast on clicker events!",
+        tooltip = "Toggle Greeting Toast On/Off",
+        var = "toastEnabled",
+    },
+    { 
+        label = "Toggle Clicker Sound",
+        description = "Enable to hear the clicker sound on events!",
+        tooltip = "Toggle Clicker Sound On/Off",
+        var = "muted",
+    },
+    {
+        label = "Click Sound Volume",
+        description = "Set the volume of the click sound.",
+        tooltip = "Choose volume level for click sound",
+        var = "useClick",
+    },
+    {
+        label = "Sound Channel",
+        description = "Set the sound channel for the click sound.",
+        tooltip = "Choose sound channel for click sound",
+        var = "useChannel",
+    }
+}
 
 SLASH_CLICKER1 = "/clicker"
 function SlashCmdList.CLICKER(msg, editbox)
@@ -47,14 +106,39 @@ function SlashCmdList.CLICKER(msg, editbox)
     command = strlower(command or "")
     rest = strlower(rest or "")
 
-    if command == "show" then
-        mainFrame:Show()
+    if command == "debug" then
+        if debugFrame:IsShown() then
+            debugFrame:Hide()
+        else
+            debugFrame:Show()
+        end
+
+    elseif command == "enable" then
+        ClickerDB.clickerEnabled = true
+        print("Clicker Addon Enabled.")
+
+    elseif command == "disable" then
+        ClickerDB.clickerEnabled = false
+        print("Clicker Addon Disabled.")
+
+    elseif command == "settings" then
+        if settingsFrame:IsShown() then
+            settingsFrame:Hide()
+        else
+            settingsFrame:Show()
+        end
+        
+    elseif command == "toast" then
+        -- Toggle toast functionality here
+        local clickerToast = not ClickerDB.toastEnabled
+        ClickerDB.toastEnabled = clickerToast
+        print("Clicker Toast Enabled set to " .. tostring(clickerToast))
 
     elseif command == "mute" then
         -- Toggle mute functionality here
         local clickerMuted = not ClickerDB.muted
         ClickerDB.muted = clickerMuted
-        print("Clicker Mute Toggled to " .. tostring(clickerMuted))
+        print("Clicker Mute set to " .. tostring(clickerMuted))
 
     elseif command == "volume" then
         local volume = tonumber(rest)
@@ -89,6 +173,10 @@ function SlashCmdList.CLICKER(msg, editbox)
             print("Invalid channel. Please enter 1 for Master, 2 for SFX, or 3 for Dialog.")
         end
 
+    elseif command == "resetClicks" then
+        ClickerDB.numClicks = 0
+        print("Clicker total clicks reset to 0.")
+
     elseif command == "test" then
         if not ClickerDB.muted then 
             PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. ClickerDB.useClick .. ".ogg", ClickerDB.useChannel)
@@ -112,7 +200,10 @@ function SlashCmdList.CLICKER(msg, editbox)
 
     else
         print("Clicker Addon Commands:")
-        print("/clicker show - Show the Clicker settings frame.")
+        print("/clicker enable - Enable the Clicker addon.")
+        print("/clicker disable - Disable the Clicker addon.") 
+        print("/clicker debug - Show the Clicker debug frame.")
+        print("/clicker settings - Open the Clicker settings frame.")
         print("/clicker mute - Toggle mute on/off for Clicker.")
         print("/clicker volume [0,6,12,18] - Set click sound volume. 0=default, 6=+6db, 12=+12db, 18=+18db.")
         print("/clicker channel [1,2,3] - Set sound channel. 1=Master, 2=SFX, 3=Dialog.")
