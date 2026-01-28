@@ -1,9 +1,11 @@
-Interface: 99999
-Title: Clicker
-Notes: This addon will play a clicker sound effect for various events that the player can configure.
-Author: FatRat_
-Version: 0.0.1
-RequiredDeps:
-X-Curse-Project-ID: 1447376
-SavedVariables:
-SavedVariablesPerCharacter:
+## Interface: 99999
+## Title: Clicker
+## Notes: This addon will play a clicker sound effect for various events that the player can configure.
+## Author: FatRat_
+## Version: 0.0.1
+## RequiredDeps:
+## X-Curse-Project-ID: 1447376
+## SavedVariables:
+## SavedVariablesPerCharacter:
+
+Clicker.lua

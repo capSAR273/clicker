@@ -1,0 +1,1 @@
+print ("Clicker Loaded Successfully")
