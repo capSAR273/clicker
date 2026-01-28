@@ -1,5 +1,9 @@
 if not ClickerDB then
-    ClickerDB = {}
+    ClickerDB = {
+        muted = false,
+        useClick = "clicker",
+        useChannel = "Master",
+    }
 end
 
 print ("Clicker Loaded Successfully")
@@ -50,19 +54,34 @@ function SlashCmdList.CLICKER(msg, editbox)
             print("Invalid volume. Please enter a value between 0 and 100.")
         end
 
+    elseif command == "channel" then
+        local channel = tonumber(rest)
+        if channel == 1 then
+            ClickerDB.useChannel = "Master"
+            print("Clicker Channel Set to Master")
+        elseif channel == 2 then
+            ClickerDB.useChannel = "SFX"
+            print("Clicker Channel Set to SFX")
+        elseif channel == 3 then
+            ClickerDB.useChannel = "Dialog"
+            print("Clicker Channel Set to Dialog")
+        else
+            print("Invalid channel. Please enter 1 for Master, 2 for SFX, or 3 for Dialog.")
+        end
+
     elseif command == "test" then
         if not ClickerDB.muted then 
-            PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. ClickerDB.useClick .. ".ogg", "Dialog")
+            PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. ClickerDB.useClick .. ".ogg", ClickerDB.useChannel)
         print("Clicker Test Sound Played, filename is " .. ClickerDB.useClick .. ".ogg")
         end
 
     elseif command == "test6" then
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker6.ogg", "Dialog")
+        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker6.ogg", ClickerDB.useChannel)
         print("Clicker Test +6db Sound Played")
         end
 
     elseif command == "test12" then
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker12.ogg", "Dialog")
+        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker12.ogg", ClickerDB.useChannel)
         print("Clicker Test +12db Sound Played")
         end
     else
@@ -76,22 +95,22 @@ function SlashCmdList.CLICKER(msg, editbox)
     end
 end
 
+-- Hide the frame when the user presses the Escape key
+table.insert(UISpecialFrames, "ClickerMainFrame")
+
 local eventListenerFrame = CreateFrame("Frame", "ClickerEventListenerFrame", UIParent)
 local function eventHandler(self, event, ...)
     if event == "PLAYER_LEVEL_UP" then
         print("Player has leveled up. Click Time!.")
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker.ogg", "SFX")
+        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. ClickerDB.useClick .. ".ogg", ClickerDB.useChannel)
         end
     end
     if event == "PLAYER_PVP_KILLS_CHANGED" then
         print("Player received credit for a PvP kill. Click Time!.")
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker.ogg", "SFX")
+        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. ClickerDB.useClick .. ".ogg", ClickerDB.useChannel)
         end
     end
 end
 
 eventListenerFrame:SetScript("OnEvent", eventHandler)
 eventListenerFrame:RegisterEvent("PLAYER_LEVEL_UP")
-
--- Hide the frame when the user presses the Escape key
-table.insert(UISpecialFrames, "ClickerMainFrame")
