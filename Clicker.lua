@@ -40,7 +40,7 @@ function Clicker:BuildOptionsPanel()
                 type = "description",
                 fontSize = "medium",
                 order = 4,
-                name = "Total Clicks Recorded: |cFF36F7BC" .. self.db.profile.numClicks .. "|r \n",
+                name = "Total Clicks Recorded: |cFF36F7BC" .. Clicker.db.profile.numClicks .. "|r \n",
             },
             main = {
                 name = "General Options",
@@ -58,24 +58,24 @@ function Clicker:BuildOptionsPanel()
                         name = "Enable Clicker",
                         desc = "Toggle the Clicker addon functions on or off.",
                         order = 1.1,
-                        get = function(info) return self.db.profile.clickerEnabled end,
-                        set = function(info, value) self.db.profile.clickerEnabled = value end,
+                        get = function(info) return Clicker.db.profile.clickerEnabled end,
+                        set = function(info, value) Clicker.db.profile.clickerEnabled = value end,
                     },
                     toastEnabled = {
                         type = "toggle",
                         name = "Enable Greeting Toast",
                         desc = "Enable to see a greeting toast on clicker events!",
                         order = 1.2,
-                        get = function(info) return self.db.profile.toastEnabled end,
-                        set = function(info, value) self.db.profile.toastEnabled = value end,
+                        get = function(info) return Clicker.db.profile.toastEnabled end,
+                        set = function(info, value) Clicker.db.profile.toastEnabled = value end,
                     },
                     toastText = {
                         type = "input",
                         name = "Label Text",
                         desc = "Text the addon will congratulate you with each time a click event happens.",
                         order = 1.3,
-                        get = function(info) return self.db.profile.toastText end,
-                        set = function(info, value) self.db.profile.toastText = value end,
+                        get = function(info) return Clicker.db.profile.toastText end,
+                        set = function(info, value) Clicker.db.profile.toastText = value end,
                     },
                     testClick = {
                         type = "execute",
@@ -83,9 +83,9 @@ function Clicker:BuildOptionsPanel()
                         desc = "Play a test click sound.",
                         order = 1.4,
                         func = function()
-                            if not self.db.profile.muted then 
-                                PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
-                                print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
+                            if not Clicker.db.profile.muted then 
+                                PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
+                                print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
                             end
                         end,
                     },
@@ -95,7 +95,7 @@ function Clicker:BuildOptionsPanel()
                         desc = "Reset the click counter :(",
                         order = 1.5,
                         func = function()
-                            self.db.profile.numClicks = 0
+                            Clicker.db.profile.numClicks = 0
                             print("Clicker total clicks reset to 0.")
                         end,
                     },
@@ -110,8 +110,8 @@ function Clicker:BuildOptionsPanel()
                         name = "Mute Clicker Sound",
                         desc = "Enable to mute the clicker sound on events!",
                         order = 2.1,
-                        get = function(info) return self.db.profile.muted end,
-                        set = function(info, value) self.db.profile.muted = value end,
+                        get = function(info) return Clicker.db.profile.muted end,
+                        set = function(info, value) Clicker.db.profile.muted = value end,
                     },
                     soundChannel = {
                         type = "select",
@@ -124,8 +124,8 @@ function Clicker:BuildOptionsPanel()
                             ["Dialog"] = "Dialog",
                         },
                         style = "dropdown",
-                        get = function(info) return self.db.profile.soundChannel end,
-                        set = function(info, value) self.db.profile.soundChannel = value end,
+                        get = function(info) return Clicker.db.profile.soundChannel end,
+                        set = function(info, value) Clicker.db.profile.soundChannel = value end,
                     },
                     volumeLevel = {
                         type = "select",
@@ -139,8 +139,8 @@ function Clicker:BuildOptionsPanel()
                             ["clicker18"] = "+18db",
                         },
                         style = "dropdown",
-                        get = function(info) return self.db.profile.volumeLevel end,
-                        set = function(info, value) self.db.profile.volumeLevel = value end,
+                        get = function(info) return Clicker.db.profile.volumeLevel end,
+                        set = function(info, value) Clicker.db.profile.volumeLevel = value end,
                     },
                 },
             },
@@ -150,7 +150,6 @@ function Clicker:BuildOptionsPanel()
     print("Clicker Options Panel Built")
     AceConfig:RegisterOptionsTable("Clicker_options", options, nil)
     print("Clicker Options Registered")
-    print(self.db.profile.muted)
 end
 
 function Clicker:OnInitialize()
@@ -230,58 +229,46 @@ kbTracker:SetScript("OnEvent", kbHandler)
 --Magic happens here! Event Listener Frame and functions
 local eventListenerFrame = CreateFrame("Frame", "ClickerEventListenerFrame", UIParent)
 
-local function playClick(self)
+function Clicker:playClick()
     print("Calling playClick function")
-    if not self.db.profile.muted then
-        PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
+    if not Clicker.db.profile.muted then
+        PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
         print("Played Sound")
-        print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-        self.db.profile.numClicks = self.db.profile.numClicks + 1
-        print("Incremented numClicks to " .. self.db.profile.numClicks)
+        print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
+        Clicker.db.profile.numClicks = Clicker.db.profile.numClicks + 1
     end
 end
 
 local function eventHandler(self, event, ...)
     if event == "PLAYER_LEVEL_UP" then
         print("Player has leveled up. Click Time!.")
-        if not self.db.profile.muted then
-            playClick(self)
-            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-            self.db.profile.numClicks = self.db.profile.numClicks + 1
+        if not Clicker.db.profile.muted then
+            Clicker:playClick()
+            print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         end
     elseif event == "ACHIEVEMENT_EARNED" then
         print("Player earned an achievement. Click Time!.")
-        if not self.db.profile.muted then
-            playClick(self)
-            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-            self.db.profile.numClicks = self.db.profile.numClicks + 1
+        if not Clicker.db.profile.muted then
+            Clicker:playClick()
+            print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         end
     elseif event == "NEW_PET_ADDED" then
         print("Player added a new pet to their collection. Click Time!.")
-        if not self.db.profile.muted then
-            playClick(self)            
-            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-            self.db.profile.numClicks = self.db.profile.numClicks + 1
+        if not Clicker.db.profile.muted then
+            Clicker:playClick()
+            print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         end
-    elseif event == "UPDATE_MOUSEOVER_UNIT" then
-        print("Player moused over a unit (debug). Click Time!.")
-        playClick(self) 
-        print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-        self.db.profile.numClicks = self.db.profile.numClicks + 1
     elseif event == "ZONE_CHANGED" then
         print("Player changed zones (debug). Click Time!.")
-        if not self.db.profile.muted then
+        if not Clicker.db.profile.muted then
             print("Inside ZONE_CHANGED event handler")
-            playClick(self)
-            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-            self.db.profile.numClicks = self.db.profile.numClicks + 1
+            Clicker:playClick()
+            print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         end
-        print("Failed the if statement on zone change")
     end
 end
 eventListenerFrame:SetScript("OnEvent", eventHandler)
 eventListenerFrame:RegisterEvent("PLAYER_LEVEL_UP")
 eventListenerFrame:RegisterEvent("ACHIEVEMENT_EARNED")
 eventListenerFrame:RegisterEvent("NEW_PET_ADDED")
-eventListenerFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 eventListenerFrame:RegisterEvent("ZONE_CHANGED")
