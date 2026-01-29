@@ -4,9 +4,10 @@ Clicker = LibStub("AceAddon-3.0"):NewAddon("Clicker", "AceConsole-3.0", "AceTime
 AceConfig = LibStub("AceConfig-3.0")
 AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
-local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata
 Clicker.playerGUID = UnitGUID("player")
 Clicker.playerName = UnitName("player")
+Clicker.playerLevel = UnitLevel("player")
 local addonpath = "Interface\\AddOns\\Clicker\\"
 local _G = _G
 
@@ -214,6 +215,10 @@ end
 
 function Clicker:OnEnable()
     Clicker:BuildOptionsPanel()
+    for i=1, Clicker.max_window do
+        Clicker.window[i] = Clicker:createToastFrame()
+        Clicker.window[i]:SetPoint("BOTTOM", 0, 28 + (100*i))
+    end
 end
 
 local kbTracker = CreateFrame("Frame", "KBTracker", UIParent)
@@ -244,13 +249,13 @@ function Clicker:playClick()
     end
 end
 
-local function eventHandler(self, event, ...)
+local function eventHandler(event)
     if event == "PLAYER_LEVEL_UP" then
         if not Clicker.db.profile.muted then
             print("Player has leveled up. Click Time!")
             Clicker:playClick()
-            if not Clicker.db.profile.toastEnabled then
-                Clicker:showToast()
+            if Clicker.db.profile.toastEnabled then
+                Clicker:showToast("Level: " .. Clicker.playerLevel, Clicker.playerLevel, addonpath .. "Media\\bone_trans64", nil)
             end
         end
     elseif event == "ACHIEVEMENT_EARNED" then
@@ -264,11 +269,13 @@ local function eventHandler(self, event, ...)
             Clicker:playClick()
         end
     elseif event == "ZONE_CHANGED" then
+        print("ZONE_CHANGED event detected.")
         if not Clicker.db.profile.muted then
             print("Player changed zones (debug). Click Time!")
             Clicker:playClick()
-            if not Clicker.db.profile.toastEnabled then
-                Clicker:showToast()
+            if Clicker.db.profile.toastEnabled then
+                Clicker:showToast("Zone Changed!", 0, addonpath .. "Media\\bone_trans64", nil)
+                print("Showing toast (debug).")
             end
         end
     end
@@ -370,7 +377,6 @@ function Clicker:createToastFrame()
         clickerTF.icon.texture:SetPoint("CENTER", 0, 3)
         clickerTF.icon.texture:SetWidth(50)
         clickerTF.icon.texture:SetHeight(50)
-        clickerTF.icon.texture:SetTexture(addonpath .. "Media\\bone_trans64")
         
         clickerTF.icon.backfill = clickerTF.icon:CreateTexture("backfill", "BACKGROUND")
         clickerTF.icon.backfill:SetBlendMode("ADD")
@@ -386,26 +392,38 @@ function Clicker:createToastFrame()
         clickerTF.icon.overlay:SetWidth(72)
         clickerTF.icon.overlay:SetTexCoord(0, 0.5625, 0, 0.5625)
 
+        clickerTF.shield = CreateFrame("Frame", "shield", clickerTF)
+        clickerTF.shield:SetWidth(64)
+        clickerTF.shield:SetHeight(64)
+        clickerTF.shield:SetPoint("TOPRIGHT", -10, -13)
+
+        clickerTF.shield.icon = clickerTF.shield:CreateTexture("icon", "BACKGROUND")
+        clickerTF.shield.icon:SetTexture(addonpath .. "Media\\ui-achievement-shields")
+        clickerTF.shield.icon:SetWidth(52)
+        clickerTF.shield.icon:SetHeight(48)
+        clickerTF.shield.icon:SetPoint("TOPRIGHT", 1, -8)
+
+        clickerTF.shield.points = clickerTF.shield:CreateFontString("Name", "OVERLAY", "GameFontWhite")
+        clickerTF.shield.points:SetPoint("CENTER", 7, 2)
+        clickerTF.shield.points:SetWidth(64)
+        clickerTF.shield.points:SetHeight(64)
+
         return clickerTF
     end
 end
 
-function Clicker:showToast(elite)
+function Clicker:showToast(text, points, icon, elite, header)
     print("Entered showToast")
     for i=1, Clicker.max_window do
-        if not Clicker.window[i].IsVisible() then
+        if not Clicker.window[i]:IsVisible() then
             Clicker.window[i].unlocked:SetText(Clicker.db.profile.toastText or "DUMMY")
-            Clicker.window[i].name:SetText(Clicker.db.profile.toastText or "DUMMY")
-            --Clicker.window[i].icon.texture:SetTexture(addonpath .. "Media\\bone_trans64")
+            Clicker.window[i].name:SetText(text or Clicker.db.profile.toastText or "DUMMY")
+            Clicker.window[i].icon.texture:SetTexture(icon or addonpath .. "Media\\bone_trans64")
 
+            Clicker.window[i].shield.points:SetText(points or "10")
             Clicker.window[i]:Show()
             print("Showing Toast Frame")
             return
         end
     end
-end
-
-for i=1, Clicker.max_window do
-  Clicker.window[i] = Clicker:createToastFrame()
-  Clicker.window[i]:SetPoint("BOTTOM", 0, 28 + (100*i))
 end
