@@ -249,34 +249,27 @@ function Clicker:playClick()
     end
 end
 
-local function eventHandler(event)
+local function eventHandler(self,event, ...)
+    print("Clicker Event Handler triggered for event: " .. event)
     if event == "PLAYER_LEVEL_UP" then
-        if not Clicker.db.profile.muted then
-            print("Player has leveled up. Click Time!")
-            Clicker:playClick()
-            if Clicker.db.profile.toastEnabled then
-                Clicker:showToast("Level: " .. Clicker.playerLevel, Clicker.playerLevel, addonpath .. "Media\\bone_trans64", nil)
-            end
+        print("Player has leveled up. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("Level: " .. Clicker.playerLevel, Clicker.playerLevel, addonpath .. "Media\\bone_bw64", nil)
         end
     elseif event == "ACHIEVEMENT_EARNED" then
-        if not Clicker.db.profile.muted then
-            print("Player earned an achievement. Click Time!")
-            Clicker:playClick()
-        end
+        print("Player earned an achievement. Click Time!")
+        Clicker:playClick()
     elseif event == "NEW_PET_ADDED" then
-        if not Clicker.db.profile.muted then
-            print("Player added a new pet to their collection. Click Time!")
-            Clicker:playClick()
-        end
+        print("Player added a new pet to their collection. Click Time!")
+        Clicker:playClick()
     elseif event == "ZONE_CHANGED" then
         print("ZONE_CHANGED event detected.")
-        if not Clicker.db.profile.muted then
-            print("Player changed zones (debug). Click Time!")
-            Clicker:playClick()
-            if Clicker.db.profile.toastEnabled then
-                Clicker:showToast("Zone Changed!", 0, addonpath .. "Media\\bone_trans64", nil)
-                print("Showing toast (debug).")
-            end
+        print("Player changed zones (debug). Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("Zone Changed!", 0, addonpath .. "Media\\bone_bw64", nil)
+            print("Showing toast (debug).")
         end
     end
 end
@@ -296,42 +289,52 @@ function Clicker:createToastFrame()
 
     do --animations
         clickerTF:SetScript("OnShow", function()
-           self.modifyA = 1
-           self.modifyB = 0
-           self.stateA = 0
-           self.stateB = 0
-           self.animate = true
-
-           self.showTime = GetTime()
+           clickerTF.modifyA = 1
+           clickerTF.modifyB = 0
+           clickerTF.stateA = 0
+           clickerTF.stateB = 0
+           clickerTF.animate = true
+           clickerTF.showTime = GetTime()
         end)
 
-        clickerTF:SetScript("OnUpdate", function()
-           if ( self.animate ) then
-              local elapsed = GetTime() - self.showTime
+    clickerTF:SetScript("OnUpdate", function()
+    if ( clickerTF.tick or 1) > GetTime() then return else clickerTF.tick = GetTime() + .01 end
 
-              if ( self.stateA == 0 ) then
-                 self.modifyA = self.modifyA - 0.05
-                 if ( self.modifyA <= 0 ) then
-                    self.modifyA = 0
-                    self.stateA = 1
-                    self.showTime = GetTime()
-                 end
-                 self:SetAlpha( 1 - self.modifyA )
-              elseif ( self.stateA == 1 ) then
-                 if ( elapsed >= 3 ) then
-                    self.stateA = 2
-                 end
-              elseif ( self.stateA == 2 ) then
-                 self.modifyA = self.modifyA + 0.05
-                 if ( self.modifyA >= 1 ) then
-                    self.modifyA = 1
-                    self.animate = false
-                    self:Hide()
-                 end
-                 self:SetAlpha( 1 - self.modifyA )
-              end
-           end
-        end)    
+        if clickerTF.animate == true then
+            if clickerTF.stateA > .50 and clickerTF.modifyA == 1 then
+                clickerTF.modifyB = 1
+            end
+
+            if clickerTF.stateA > .75 then
+                clickerTF.modifyA = -1
+            end
+
+            if clickerTF.stateB > .50 then
+                clickerTF.modifyB = -1
+            end
+
+            clickerTF.stateA = clickerTF.stateA + clickerTF.modifyA/50
+            clickerTF.stateB = clickerTF.stateB + clickerTF.modifyB/50
+
+            clickerTF.glow:SetGradient("HORIZONTAL",{r=clickerTF.stateA, g=clickerTF.stateA, b=clickerTF.stateA, a=clickerTF.stateA},
+                {r=clickerTF.stateB, g=clickerTF.stateB, b=clickerTF.stateB, a=clickerTF.stateB})
+
+            clickerTF.shine:SetGradient("VERTICAL",{r=clickerTF.stateA, g=clickerTF.stateA, b=clickerTF.stateA, a=clickerTF.stateA},
+                {r=clickerTF.stateB, g=clickerTF.stateB, b=clickerTF.stateB, a=clickerTF.stateB})
+
+            if clickerTF.stateA < 0 and clickerTF.stateB < 0 then
+                clickerTF.animate = false
+            end
+        end
+
+        if clickerTF.showTime + 10 < GetTime() then
+            clickerTF:SetAlpha(clickerTF:GetAlpha() - .05)
+            if clickerTF:GetAlpha() <= .05 then
+                clickerTF:Hide()
+                clickerTF:SetAlpha(1)
+            end
+        end
+    end)
 
         clickerTF.background = clickerTF:CreateTexture("background", "BACKGROUND")
         clickerTF.background:SetTexture(addonpath .. "Media\\ui-achievement-alert-background")
@@ -348,7 +351,6 @@ function Clicker:createToastFrame()
         clickerTF.name:SetSize(240, 16)
         clickerTF.name:SetPoint("BOTTOMLEFT", clickerTF, "TOP", 72, 36)
         clickerTF.name:SetPoint("BOTTOMRIGHT", clickerTF, "TOP", -60, 36)
-        -- clickerTF.name:SetTextColor(Clicker.db.profile.clickChatColor.r, Clicker.db.profile.clickChatColor.g, Clicker.db.profile.clickChatColor.b, Clicker.db.profile.clickChatColor.a)
 
         clickerTF.glow = clickerTF:CreateTexture("glow", "OVERLAY")
         clickerTF.glow:SetTexture(addonpath .. "Media\\ui-achievement-alert-glow")
@@ -375,8 +377,8 @@ function Clicker:createToastFrame()
 
         clickerTF.icon.texture = clickerTF.icon:CreateTexture("texture", "ARTWORK")
         clickerTF.icon.texture:SetPoint("CENTER", 0, 3)
-        clickerTF.icon.texture:SetWidth(50)
-        clickerTF.icon.texture:SetHeight(50)
+        clickerTF.icon.texture:SetWidth(64)
+        clickerTF.icon.texture:SetHeight(64)
         
         clickerTF.icon.backfill = clickerTF.icon:CreateTexture("backfill", "BACKGROUND")
         clickerTF.icon.backfill:SetBlendMode("ADD")
