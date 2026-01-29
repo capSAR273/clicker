@@ -84,7 +84,7 @@ function Clicker:BuildOptionsPanel()
                         order = 1.4,
                         func = function()
                             if not self.db.profile.muted then 
-                                PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
+                                PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
                                 print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
                             end
                         end,
@@ -150,6 +150,7 @@ function Clicker:BuildOptionsPanel()
     print("Clicker Options Panel Built")
     AceConfig:RegisterOptionsTable("Clicker_options", options, nil)
     print("Clicker Options Registered")
+    print(self.db.profile.muted)
 end
 
 function Clicker:OnInitialize()
@@ -176,22 +177,22 @@ function Clicker:OnInitialize()
             print("Clicker total clicks reset to 0.")
 
         elseif command == "test" then
-            if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
+            if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
             print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
             end
 
         elseif command == "test6" then
-            if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker6.ogg", self.db.profile.soundChannel)
+            if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\clicker6.ogg", self.db.profile.soundChannel)
             print("Clicker test +6db sound played on the channel " .. self.db.profile.soundChannel)
             end
 
         elseif command == "test12" then
-            if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker12.ogg", self.db.profile.soundChannel)
+            if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\clicker12.ogg", self.db.profile.soundChannel)
             print("Clicker test +12db sound played on the channel " .. self.db.profile.soundChannel)
             end
 
         elseif command == "test18" then
-            if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker18.ogg", self.db.profile.soundChannel)
+            if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\clicker18.ogg", self.db.profile.soundChannel)
             print("Clicker test +18db sound played on the channel " .. self.db.profile.soundChannel)
             end
 
@@ -217,7 +218,7 @@ local function kbHandler(self, event, subevent, ...)
     local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags
     if subevent == "PARTY_KILL" and sourceGUID == Clicker.playerGUID then
         print("Player killed an enemy. Click Time!.")
-        if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
+        if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
         self.db.profile.numClicks = self.db.profile.numClicks + 1
         end
     end
@@ -228,37 +229,59 @@ kbTracker:SetScript("OnEvent", kbHandler)
 
 --Magic happens here! Event Listener Frame and functions
 local eventListenerFrame = CreateFrame("Frame", "ClickerEventListenerFrame", UIParent)
-local function eventHandler(self, event, ...)
-    if event == "PLAYER_LEVEL_UP" then
-        print("Player has leveled up. Click Time!.")
-        if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
+
+local function playClick(self)
+    print("Calling playClick function")
+    if not self.db.profile.muted then
+        PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
+        print("Played Sound")
         print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
         self.db.profile.numClicks = self.db.profile.numClicks + 1
-        end
-    elseif event == "ACHIEVEMENT_EARNED" then
-        print("Player earned an achievement. Click Time!.")
-        if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
-        print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-        self.db.profile.numClicks = self.db.profile.numClicks + 1
-        end
-    elseif event == "NEW_PET_ADDED" then
-        print("Player added a new pet to their collection. Click Time!.")
-        if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
-        print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-        self.db.profile.numClicks = self.db.profile.numClicks + 1
-        end
-    elseif event == "ZONE_CHANGED" then
-        print("Player changed zones (debug). Click Time!.")
-        print("Mute status is " .. tostring(self.db.profile.muted))
-        if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
-        print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
-        self.db.profile.numClicks = self.db.profile.numClicks + 1
-        end
+        print("Incremented numClicks to " .. self.db.profile.numClicks)
     end
 end
 
+local function eventHandler(self, event, ...)
+    if event == "PLAYER_LEVEL_UP" then
+        print("Player has leveled up. Click Time!.")
+        if not self.db.profile.muted then
+            playClick(self)
+            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
+            self.db.profile.numClicks = self.db.profile.numClicks + 1
+        end
+    elseif event == "ACHIEVEMENT_EARNED" then
+        print("Player earned an achievement. Click Time!.")
+        if not self.db.profile.muted then
+            playClick(self)
+            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
+            self.db.profile.numClicks = self.db.profile.numClicks + 1
+        end
+    elseif event == "NEW_PET_ADDED" then
+        print("Player added a new pet to their collection. Click Time!.")
+        if not self.db.profile.muted then
+            playClick(self)            
+            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
+            self.db.profile.numClicks = self.db.profile.numClicks + 1
+        end
+    elseif event == "UPDATE_MOUSEOVER_UNIT" then
+        print("Player moused over a unit (debug). Click Time!.")
+        playClick(self) 
+        print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
+        self.db.profile.numClicks = self.db.profile.numClicks + 1
+    elseif event == "ZONE_CHANGED" then
+        print("Player changed zones (debug). Click Time!.")
+        if not self.db.profile.muted then
+            print("Inside ZONE_CHANGED event handler")
+            playClick(self)
+            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
+            self.db.profile.numClicks = self.db.profile.numClicks + 1
+        end
+        print("Failed the if statement on zone change")
+    end
+end
+eventListenerFrame:SetScript("OnEvent", eventHandler)
 eventListenerFrame:RegisterEvent("PLAYER_LEVEL_UP")
 eventListenerFrame:RegisterEvent("ACHIEVEMENT_EARNED")
 eventListenerFrame:RegisterEvent("NEW_PET_ADDED")
+eventListenerFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 eventListenerFrame:RegisterEvent("ZONE_CHANGED")
-eventListenerFrame:SetScript("OnEvent", eventHandler)
