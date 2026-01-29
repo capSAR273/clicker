@@ -165,6 +165,7 @@ function Clicker:OnInitialize()
             soundChannel = "Master",
             volumeLevel = "clicker",
             numClicks = 0,
+            bark = false,
         },
     }
     SLASH_CLICKER1 = "/clicker"
@@ -201,13 +202,22 @@ function Clicker:OnInitialize()
             self.db.profile.soundChannel = "Master"
             self.db.profile.volumeLevel = "Default"
             print("All Clicker settings have been reset to defaults.")
-
+        elseif command == "secret" then
+            self.db.profile.bark = not self.db.profile.bark
+            if not self.db.profile.bark then
+                print("Your normal speech is magically restored!")
+            elseif self.db.profile.bark then
+                print("You found the easter egg! Your speech has been enhanced!")
+            end
+            
         else
             print("Clicker Addon Commands:")
             print("/clicker test - Play test click sound.")
             print("/clicker test6 - Play test +6db click sound.")
             print("/clicker test12 - Play test +12db click sound.")
             print("/clicker test18 - Play test +18db click sound.")
+            print("/clicker resetAll - Reset all Clicker settings to defaults.")
+            print("/clicker secret - ???");
         end
     end
     self.db = LibStub("AceDB-3.0"):New("ClickerDB", defaults, true)
@@ -254,19 +264,25 @@ local function eventHandler(self,event, ...)
         print("(debug) Player has leveled up. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
-            Clicker:showToast("+ Level Up! +")
+            Clicker:showToast("Level Up! Woohoo!")
         end
     elseif event == "ACHIEVEMENT_EARNED" then
         print("(debug) Player earned an achievement. Click Time!")
         Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("Fresh Achievement!")
+        end
     elseif event == "NEW_PET_ADDED" then
         print("(debug) Player added a new pet to their collection. Click Time!")
         Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("New Pet Added!")
+        end
     elseif event == "ZONE_CHANGED" then
         print("(debug) Player changed zones. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
-            Clicker:showToast("+ Zone Changed! +")
+            Clicker:showToast("Zone Changed!")
         end
     end
 end
@@ -404,5 +420,61 @@ function Clicker:showToast(text)
             Clicker.window[i]:Show()
             return
         end
+    end
+end
+
+local barkChannels = {
+	guild = false,
+	officer = false,
+    raid = false,
+    party = false,
+    say = true,
+	whisper = true,
+}
+
+local speaks = {
+    "woof",
+    "bark",
+    "ruff",
+    "arf",
+    "grr",
+}
+
+local channelOptions = {
+	GUILD = function() return barkChannels.guild end,
+	OFFICER = function() return barkChannels.officer end,
+	WHISPER = function() return barkChannels.whisper end,
+    RAID = function() return barkChannels.raid end,
+    PARTY = function() return barkChannels.party end,
+    SAY = function() return barkChannels.say end,
+}
+
+
+local function canBark(chatType)
+	if Clicker.db.profile.bark then
+		if channelOptions[chatType] then
+			return channelOptions[chatType]()
+		else
+			return true
+		end
+	end
+end
+
+local makeBark = C_ChatInfo.SendChatMessage
+
+local function getRandomSpeak()
+    return speaks[math.random(#speaks)]
+end
+
+function C_ChatInfo.SendChatMessage(msg, chatType, ...)
+    if canBark(chatType) then
+        --Replace all words with a random word from the speaks table
+        print("(debug) Barking in chat!")
+        msg = string.gsub(msg, "%w+", function(word)
+            return getRandomSpeak()
+        end)
+        makeBark(msg, chatType, ...)
+    else
+        makeBark(msg, chatType, ...)
     end
 end
