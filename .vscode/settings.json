@@ -38,6 +38,10 @@
         "CANCEL",
         "SELECTED_CHAT_FRAME",
         "FONT_COLOR_CODE_CLOSE",
-        "hash_SlashCmdList"
+        "hash_SlashCmdList",
+        "MinimalSliderWithSteppersMixin"
+    ],
+    "Lua.diagnostics.disable": [
+        "assign-type-mismatch"
     ]
 }

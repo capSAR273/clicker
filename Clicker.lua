@@ -1,250 +1,193 @@
 -- /dump select(4, GetBuildInfo()) use to get updated toc interface version number
-if not ClickerDB then
-    ClickerDB = {
-        settingsKeys = {},
-        clickerEnabled = true,
-        toastEnabled = true,
-        muted = false,
-        useClick = "clicker",
-        useChannel = "Master",
-        numClicks = 0,
-    }
-end
+--Load Ace3
+Clicker = LibStub("AceAddon-3.0"):NewAddon("Clicker", "AceConsole-3.0", "AceTimer-3.0", "AceComm-3.0", "AceEvent-3.0")
+AceConfig = LibStub("AceConfig-3.0")
+AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
+local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+
+
+local _G = _G
 print ("Clicker Loaded Successfully")
-local debugFrame = CreateFrame("Frame", "ClickerMainFrame", UIParent, "BasicFrameTemplateWithInset")
-debugFrame:SetSize(350, 350)
-debugFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-debugFrame.TitleBg:SetHeight(30)
-debugFrame.title = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-debugFrame.title:SetPoint("TOPLEFT", debugFrame.TitleBg, "TOPLEFT", 5, -3)
-debugFrame.title:SetText("Clicker Debug Info")
 
-debugFrame.muted = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-debugFrame.muted:SetPoint("TOPLEFT", debugFrame, "TOPLEFT", 10, -40)
-debugFrame.muted:SetText("Muted: " .. tostring(ClickerDB.muted))
-debugFrame.channel = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-debugFrame.channel:SetPoint("TOPLEFT", debugFrame, "TOPLEFT", 10, -70)
-debugFrame.channel:SetText("Channel: " .. ClickerDB.useChannel)  
-debugFrame.volume = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-debugFrame.volume:SetPoint("TOPLEFT", debugFrame, "TOPLEFT", 10, -100)
-debugFrame.volume:SetText("Volume: " .. ClickerDB.useClick .. ".ogg")
-debugFrame.numClicks = debugFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-debugFrame.numClicks:SetPoint("TOPLEFT", debugFrame, "TOPLEFT", 10, -130)
-debugFrame.numClicks:SetText("Total Clicks: " .. ClickerDB.numClicks)
-
-debugFrame:Hide()
-debugFrame:EnableMouse(true)
-debugFrame:SetMovable(true)
-debugFrame:RegisterForDrag("LeftButton")
-debugFrame:SetScript("OnDragStart", function(self) debugFrame.StartMoving(self) end)
-debugFrame:SetScript("OnDragStop", function(self) debugFrame.StopMovingOrSizing(self) end)
-
-debugFrame:SetScript("OnShow", function(self)
-    debugFrame.muted:SetText("Muted: " .. tostring(ClickerDB.muted))
-    debugFrame.channel:SetText("Channel: " .. ClickerDB.useChannel)
-    debugFrame.volume:SetText("Volume: " .. ClickerDB.useClick .. ".ogg")
-    debugFrame.numClicks:SetText("Total Clicks: " .. ClickerDB.numClicks)
-    print("Clicker Main Frame Shown")
-end)
-
---Clicker Settings Frame and Config
-local settingsFrame = CreateFrame("Frame", "ClickerSettingsFrame", UIParent, "BasicFrameTemplateWithInset")
-settingsFrame:SetSize(400, 400)
-settingsFrame:SetPoint("CENTER")
-settingsFrame.TitleBg:SetHeight(30)
-settingsFrame.title = settingsFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-settingsFrame.title:SetPoint("CENTER", settingsFrame.TitleBg, "CENTER", 0, -3)
-settingsFrame.title:SetText("Clicker Settings")
-settingsFrame:Hide()
-settingsFrame:EnableMouse(true)
-settingsFrame:SetMovable(true)
-settingsFrame:RegisterForDrag("LeftButton")
-settingsFrame:SetScript("OnDragStart", function(self)
-	self:StartMoving()
-end)
-
-settingsFrame:SetScript("OnDragStop", function(self)
-	self:StopMovingOrSizing()
-end)
-
-local checkboxes = 0
-local function CreateCheckbox(checkboxText, key, checkboxTooltip)
-    local checkbox = CreateFrame("CheckButton", "ClickerCheckboxID" .. checkboxes, settingsFrame, "ChatConfigCheckButtonTemplate")
-    checkbox.Text:SetText(checkboxText)
-    checkbox:SetPoint("TOPLEFT", settingsFrame, "TOPLEFT", 10, -30 - (checkboxes * -30))
-    
-    if ClickerDB.settingsKeys[key] == nil then
-        ClickerDB.settingsKeys[key] = true
-    end
-    checkbox:SetChecked(ClickerDB.settingsKeys[key.var])
-    
-    checkbox.SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(checkboxTooltip, nil, nil, nil, nil, true)
-    end)
-    
-    checkbox:SetScript("OnLeave", function(self)
-        GameTooltip:Hide()
-    end)
-
-    checkbox.tooltip = key.tooltip
-    
-    checkbox:SetScript("OnClick", function(self)
-        ClickerDB.settingsKeys[key.var] = self:GetChecked()
-    end)
-
-    checkboxes = checkboxes + 1
-    return checkbox
+function Clicker:BuildOptionsPanel()
+    print("Building Clicker Options Panel")
+    local options = {
+        name = "Clicker Options",
+        handler = Clicker,
+        type = "group",
+        args = {
+            titleText = {
+				type = "description",
+				fontSize = "large",
+				order = 1,
+				name = "                             |cFF36F7BC" .. "Clicker: v" .. GetAddOnMetadata("Clicker", "Version"),
+            },
+            authorText = {
+				type = "description",
+				fontSize = "medium",
+				order = 2,
+				name = "|TInterface\\AddOns\\Clicker\\Media\\clicker100_trans:100:100:0:20|t |cFFFFFFFFMade by  |cFFC41E3ARatrampage-Nazgrim|r \n",
+			},
+            spacer = {
+                type = "description",
+                fontSize = "large",
+                order = 3,
+                name = " ",
+            },
+            numClicks = {
+                type = "description",
+                fontSize = "medium",
+                order = 4,
+                name = "Total Clicks Recorded: |cFF36F7BC" .. self.db.profile.numClicks .. "|r \n",
+            },
+            main = {
+                name = "General Options",
+                type = "group",
+                order = 1,
+                args = {
+                    generalHeader = {
+						name = "General Options",
+						type = "header",
+						width = "full",
+						order = 1.0,
+					},
+                    clickerEnabled = {
+                        type = "toggle",
+                        name = "Enable Clicker",
+                        desc = "Toggle the Clicker addon functions on or off.",
+                        order = 1.1,
+                        get = function(info) return self.db.profile.clickerEnabled end,
+                        set = function(info, value) self.db.profile.clickerEnabled = value end,
+                    },
+                    toastEnabled = {
+                        type = "toggle",
+                        name = "Enable Greeting Toast",
+                        desc = "Enable to see a greeting toast on clicker events!",
+                        order = 1.2,
+                        get = function(info) return self.db.profile.toastEnabled end,
+                        set = function(info, value) self.db.profile.toastEnabled = value end,
+                    },
+                    toastText = {
+                        type = "input",
+                        name = "Label Text",
+                        desc = "Text the addon will congratulate you with each time a click event happens.",
+                        order = 1.3,
+                        get = function(info) return self.db.profile.toastText end,
+                        set = function(info, value) self.db.profile.toastText = value end,
+                    },
+                    volumeHeader = {
+						name = "Volume Settings",
+						type = "header",
+						width = "full",
+						order = 2.0,
+					},
+                    muted = {
+                        type = "toggle",
+                        name = "Mute Clicker Sound",
+                        desc = "Enable to mute the clicker sound on events!",
+                        order = 2.1,
+                        get = function(info) return self.db.profile.muted end,
+                        set = function(info, value) self.db.profile.muted = value end,
+                    },
+                    soundChannel = {
+                        type = "select",
+                        name = "Sound Channel",
+                        desc = "Set the sound channel for the click sound.",
+                        order = 2.2,
+                        values = {
+                            ["Master"] = "Master",
+                            ["SFX"] = "SFX",
+                            ["Dialog"] = "Dialog",
+                        },
+                        style = "dropdown",
+                        get = function(info) return self.db.profile.soundChannel end,
+                        set = function(info, value) self.db.profile.soundChannel = value end,
+                    },
+                    volumeLevel = {
+                        type = "select",
+                        name = "Click Sound Volume",
+                        desc = "Set the volume of the click sound.",
+                        order = 2.3,
+                        values = {
+                            ["Default"] = "Default",
+                            ["+6db"] = "clicker6",
+                            ["+12db"] = "clicker12",
+                            ["+18db"] = "clicker18",
+                        },
+                        style = "dropdown",
+                        get = function(info) return self.db.profile.volumeLevel end,
+                        set = function(info, value) self.db.profile.volumeLevel = value end,
+                    },
+                },
+            },
+        },
+    }
+    Clicker.optionsFrame = AceConfigDialog:AddToBlizOptions("Clicker_options", "Clicker")
+    print("Clicker Options Panel Built")
+    AceConfig:RegisterOptionsTable("Clicker_options", options, nil)
+    print("Clicker Options Registered")
 end
 
-
-
-local settings = {
-    {
-        label = "Toggle Clicker",
-        description = "Turn the Clicker addon functions on or off.",
-        tooltip = "Toggle Clicker Addon",
-        var = "clickerEnabled",
-    },
-    {
-        label = "Toggle Greeting Toast",
-        description = "Enable to see a greeting toast on clicker events!",
-        tooltip = "Toggle Greeting Toast On/Off",
-        var = "toastEnabled",
-    },
-    { 
-        label = "Toggle Clicker Sound",
-        description = "Enable to hear the clicker sound on events!",
-        tooltip = "Toggle Clicker Sound On/Off",
-        var = "muted",
-    },
-    {
-        label = "Click Sound Volume",
-        description = "Set the volume of the click sound.",
-        tooltip = "Choose volume level for click sound",
-        var = "useClick",
-    },
-    {
-        label = "Sound Channel",
-        description = "Set the sound channel for the click sound.",
-        tooltip = "Choose sound channel for click sound",
-        var = "useChannel",
+function Clicker:OnInitialize()
+    print("clicker OnInitialize ran")
+    local defaults = {
+        profile = {
+            clickerEnabled = true,
+            toastEnabled = true,
+            toastText = "Good Job!",
+            muted = false,
+            soundChannel = "Master",
+            volumeLevel = "Default",
+            numClicks = 0,
+        },
     }
-}
+    SLASH_CLICKER1 = "/clicker"
+    SlashCmdList["CLICKER"] = function(msg, editbox)
+        local command, rest = msg:match("^(%S*)%s*(.-)$")
+        command = strlower(command or "")
+        rest = strlower(rest or "")
 
-SLASH_CLICKER1 = "/clicker"
-function SlashCmdList.CLICKER(msg, editbox)
-    local command, rest = msg:match("^(%S*)%s*(.-)$")
-    command = strlower(command or "")
-    rest = strlower(rest or "")
+        if command == "resetClicks" then
+            self.db.profile.numClicks = 0
+            print("Clicker total clicks reset to 0.")
 
-    if command == "debug" then
-        if debugFrame:IsShown() then
-            debugFrame:Hide()
+        elseif command == "test" then
+            if not self.db.profile.muted then 
+                PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.useClick .. ".ogg", self.db.profile.soundChannel)
+            print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
+            end
+
+        elseif command == "test6" then
+            if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker6.ogg", self.db.profile.soundChannel)
+            print("Clicker test +6db sound played on the channel " .. self.db.profile.soundChannel)
+            end
+
+        elseif command == "test12" then
+            if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker12.ogg", self.db.profile.soundChannel)
+            print("Clicker test +12db sound played on the channel " .. self.db.profile.soundChannel)
+            end
+
+        elseif command == "test18" then
+            if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker18.ogg", self.db.profile.soundChannel)
+            print("Clicker test +18db sound played on the channel " .. self.db.profile.soundChannel)
+            end
+
         else
-            debugFrame:Show()
+            print("Clicker Addon Commands:")
+            print("/clicker resetClicks - Reset total click count to 0 :(")
+            print("/clicker test - Play test click sound.")
+            print("/clicker test6 - Play test +6db click sound.")
+            print("/clicker test12 - Play test +12db click sound.")
+            print("/clicker test18 - Play test +18db click sound.")
         end
-
-    elseif command == "enable" then
-        ClickerDB.clickerEnabled = true
-        print("Clicker Addon Enabled.")
-
-    elseif command == "disable" then
-        ClickerDB.clickerEnabled = false
-        print("Clicker Addon Disabled.")
-
-    elseif command == "settings" then
-        if settingsFrame:IsShown() then
-            settingsFrame:Hide()
-        else
-            settingsFrame:Show()
-        end
-
-    elseif command == "toast" then
-        -- Toggle toast functionality here
-        local clickerToast = not ClickerDB.toastEnabled
-        ClickerDB.toastEnabled = clickerToast
-        print("Clicker Toast Enabled set to " .. tostring(clickerToast))
-
-    elseif command == "mute" then
-        -- Toggle mute functionality here
-        local clickerMuted = not ClickerDB.muted
-        ClickerDB.muted = clickerMuted
-        print("Clicker Mute set to " .. tostring(clickerMuted))
-
-    elseif command == "volume" then
-        local volume = tonumber(rest)
-        if volume == 1 then
-            ClickerDB.useClick = "clicker"
-            print("Clicker Volume Set to default")
-        elseif volume == 6 then
-            ClickerDB.useClick = "clicker6"
-            print("Clicker Volume Set to +6db")
-        elseif volume == 12 then
-            ClickerDB.useClick = "clicker12"
-            print("Clicker Volume Set to +12db")
-        elseif volume == 18 then
-            ClickerDB.useClick = "clicker18"
-            print("Clicker Volume Set to +18db")
-        else
-            print("The current volume is set to " .. ClickerDB.useClick .. ".ogg")
-        end
-
-    elseif command == "channel" then
-        local channel = tonumber(rest)
-        if channel == 1 then
-            ClickerDB.useChannel = "Master"
-            print("Clicker Channel Set to Master")
-        elseif channel == 2 then
-            ClickerDB.useChannel = "SFX"
-            print("Clicker Channel Set to SFX")
-        elseif channel == 3 then
-            ClickerDB.useChannel = "Dialog"
-            print("Clicker Channel Set to Dialog")
-        else
-            print("Invalid channel. Please enter 1 for Master, 2 for SFX, or 3 for Dialog.")
-        end
-
-    elseif command == "resetClicks" then
-        ClickerDB.numClicks = 0
-        print("Clicker total clicks reset to 0.")
-
-    elseif command == "test" then
-        if not ClickerDB.muted then 
-            PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. ClickerDB.useClick .. ".ogg", ClickerDB.useChannel)
-        print("Clicker test sound played on channel " .. ClickerDB.useChannel .. ", filename is " .. ClickerDB.useClick .. ".ogg")
-        end
-
-    elseif command == "test6" then
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker6.ogg", ClickerDB.useChannel)
-        print("Clicker test +6db sound played on the channel " .. ClickerDB.useChannel)
-        end
-
-    elseif command == "test12" then
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker12.ogg", ClickerDB.useChannel)
-        print("Clicker test +12db sound played on the channel " .. ClickerDB.useChannel)
-        end
-
-    elseif command == "test18" then
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\clicker18.ogg", ClickerDB.useChannel)
-        print("Clicker test +18db sound played on the channel " .. ClickerDB.useChannel)
-        end
-
-    else
-        print("Clicker Addon Commands:")
-        print("/clicker enable - Enable the Clicker addon.")
-        print("/clicker disable - Disable the Clicker addon.") 
-        print("/clicker debug - Show the Clicker debug frame.")
-        print("/clicker settings - Open the Clicker settings frame.")
-        print("/clicker mute - Toggle mute on/off for Clicker.")
-        print("/clicker volume [0,6,12,18] - Set click sound volume. 0=default, 6=+6db, 12=+12db, 18=+18db.")
-        print("/clicker channel [1,2,3] - Set sound channel. 1=Master, 2=SFX, 3=Dialog.")
-        print("/clicker test - Play test click sound.")
-        print("/clicker test6 - Play test +6db click sound.")
-        print("/clicker test12 - Play test +12db click sound.")
-        print("/clicker test18 - Play test +18db click sound.")
     end
+    self.db = LibStub("AceDB-3.0"):New("ClickerDB", defaults, true)
+    print("ClickerDB initialized.")
+end
+
+function Clicker:OnEnable()
+    Clicker:BuildOptionsPanel()
 end
 
 -- Hide the frame when the user presses the Escape key
@@ -255,14 +198,14 @@ local eventListenerFrame = CreateFrame("Frame", "ClickerEventListenerFrame", UIP
 local function eventHandler(self, event, ...)
     if event == "PLAYER_LEVEL_UP" then
         print("Player has leveled up. Click Time!.")
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. ClickerDB.useClick .. ".ogg", ClickerDB.useChannel)
-        ClickerDB.numClicks = ClickerDB.numClicks + 1
+        if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.useClick .. ".ogg", self.db.profile.useChannel)
+        self.db.profile.numClicks = self.db.profile.numClicks + 1
         end
     end
     if event == "PLAYER_PVP_KILLS_CHANGED" then
         print("Player received credit for a PvP kill. Click Time!.")
-        if not ClickerDB.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. ClickerDB.useClick .. ".ogg", ClickerDB.useChannel)
-        ClickerDB.numClicks = ClickerDB.numClicks + 1
+        if not self.db.profile.muted then PlaySoundFile("Interface\\Addons\\Clicker\\Media\\" .. self.db.profile.useClick .. ".ogg", self.db.profile.useChannel)
+        self.db.profile.numClicks = self.db.profile.numClicks + 1
         end
     end
 end
