@@ -41,7 +41,8 @@
         "hash_SlashCmdList",
         "MinimalSliderWithSteppersMixin",
         "BACKGROUND",
-        "COMPLETE"
+        "COMPLETE",
+        "RAID"
     ],
     "Lua.diagnostics.disable": [
         "assign-type-mismatch"
