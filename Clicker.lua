@@ -217,7 +217,7 @@ function Clicker:OnEnable()
     Clicker:BuildOptionsPanel()
     for i=1, Clicker.max_window do
         Clicker.window[i] = Clicker:createToastFrame()
-        Clicker.window[i]:SetPoint("RIGHT", -350, -28+ (100*i))
+        Clicker.window[i]:SetPoint("RIGHT", -350, -100 + (100*i))
     end
 end
 
@@ -342,7 +342,7 @@ function Clicker:createToastFrame()
         clickerTF.toastGreet = clickerTF:CreateFontString("ToastGreet", "OVERLAY", "GameFontBlack")
         clickerTF.toastGreet:SetSize(200, 12)
         clickerTF.toastGreet:SetPoint("TOP", 8, -22)
-        clickerTF.toastGreet:SetFont(addonpath .. "Media\\PBEdit.ttf", 16, "THICKOUTLINE")
+        clickerTF.toastGreet:SetFont(addonpath .. "Media\\PBEdit.ttf", 16, "OUTLINE")
 
         clickerTF.eventName = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
         clickerTF.eventName:SetSize(240, 16)
