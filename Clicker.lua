@@ -7,7 +7,7 @@ AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 Clicker.playerGUID = UnitGUID("player")
 Clicker.playerName = UnitName("player")
-
+local addonpath = "Interface\\AddOns\\Clicker\\"
 local _G = _G
 print ("Clicker Loaded Successfully")
 
@@ -28,7 +28,7 @@ function Clicker:BuildOptionsPanel()
 				type = "description",
 				fontSize = "medium",
 				order = 2,
-				name = "|TInterface\\AddOns\\Clicker\\Media\\clicker100_trans:100:100:0:20|t |cFFFFFFFFMade by  |cFFC69B6DRatrampage-Nazgrim|r \n",
+				name = "|T" .. addonpath .. "Media\\clicker100_trans:100:100:0:20|t |cFFFFFFFFMade by  |cFFC69B6DFatrat|r \n",
 			},
             numClicks = {
                 type = "description",
@@ -78,7 +78,7 @@ function Clicker:BuildOptionsPanel()
                         order = 1.4,
                         func = function()
                             if not Clicker.db.profile.muted then 
-                                PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
+                                PlaySoundFile(addonpath .."Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
                                 print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
                             end
                         end,
@@ -179,22 +179,22 @@ function Clicker:OnInitialize()
             print("Clicker total clicks reset to 0.")
 
         elseif command == "test" then
-            if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
+            if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
             print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
             end
 
         elseif command == "test6" then
-            if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\clicker6.ogg", self.db.profile.soundChannel)
+            if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\clicker6.ogg", self.db.profile.soundChannel)
             print("Clicker test +6db sound played on the channel " .. self.db.profile.soundChannel)
             end
 
         elseif command == "test12" then
-            if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\clicker12.ogg", self.db.profile.soundChannel)
+            if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\clicker12.ogg", self.db.profile.soundChannel)
             print("Clicker test +12db sound played on the channel " .. self.db.profile.soundChannel)
             end
 
         elseif command == "test18" then
-            if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\clicker18.ogg", self.db.profile.soundChannel)
+            if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\clicker18.ogg", self.db.profile.soundChannel)
             print("Clicker test +18db sound played on the channel " .. self.db.profile.soundChannel)
             end
 
@@ -216,11 +216,12 @@ function Clicker:OnEnable()
 end
 
 local kbTracker = CreateFrame("Frame", "KBTracker", UIParent)
-local function kbHandler(self, event, subevent, ...)
-    local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags
+local function kbHandler(self, ...)
+    local sourceGUID = select(4, ...)
+    local subevent = select(2, ...)
     if subevent == "PARTY_KILL" and sourceGUID == Clicker.playerGUID then
         print("Player killed an enemy. Click Time!.")
-        if not self.db.profile.muted then PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
+        if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
         self.db.profile.numClicks = self.db.profile.numClicks + 1
         end
     end
@@ -234,7 +235,7 @@ local eventListenerFrame = CreateFrame("Frame", "ClickerEventListenerFrame", UIP
 
 function Clicker:playClick()
     if not Clicker.db.profile.muted then
-        PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
+        PlaySoundFile(addonpath .."Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
         --print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         Clicker.db.profile.numClicks = Clicker.db.profile.numClicks + 1
         print("|c" .. Clicker.db.profile.clickChatColor .. "Click! " .. Clicker.db.profile.toastText .. " You have clicked " .. Clicker.db.profile.numClicks .. " times.|r")
@@ -270,3 +271,67 @@ eventListenerFrame:RegisterEvent("PLAYER_LEVEL_UP")
 eventListenerFrame:RegisterEvent("ACHIEVEMENT_EARNED")
 eventListenerFrame:RegisterEvent("NEW_PET_ADDED")
 eventListenerFrame:RegisterEvent("ZONE_CHANGED")
+
+function Clicker:showToast()
+    local clickerToastFrame = CreateFrame("Button", "Achievement", UIParent)
+    clickerToastFrame:SetSize(300, 88)
+    clickerToastFrame:SetFrameStrata("DIALOG")
+    clickerToastFrame:Hide()
+
+    do --animations
+        clickerToastFrame:SetScript("OnShow", function()
+           this.modifyA = 1
+           this.modifyB = 0
+           this.stateA = 0
+           this.stateB = 0
+           this.animate = true
+
+           this.showTime = GetTime()
+        end)
+
+        clickerToastFrame:SetScript("OnUpdate", function()
+           if ( this.animate ) then
+              local elapsed = GetTime() - this.showTime
+
+              if ( this.stateA == 0 ) then
+                 this.modifyA = this.modifyA - 0.05
+                 if ( this.modifyA <= 0 ) then
+                    this.modifyA = 0
+                    this.stateA = 1
+                    this.showTime = GetTime()
+                 end
+                 this:SetAlpha( 1 - this.modifyA )
+              elseif ( this.stateA == 1 ) then
+                 if ( elapsed >= 3 ) then
+                    this.stateA = 2
+                 end
+              elseif ( this.stateA == 2 ) then
+                 this.modifyA = this.modifyA + 0.05
+                 if ( this.modifyA >= 1 ) then
+                    this.modifyA = 1
+                    this.animate = false
+                    this:Hide()
+                 end
+                 this:SetAlpha( 1 - this.modifyA )
+              end
+           end
+        end)    
+
+        clickerToastFrame.background = clickerToastFrame:CreateTexture("background", "BACKGROUND")
+        clickerToastFrame.background:SetTexture(addonpath .. "Media\\ui-achievement-alert-background")
+        clickerToastFrame.background:SetPoint("TOPLEFT", 0, 0)
+        clickerToastFrame.background:SetPoint("BOTTOMRIGHT", 0, 0)
+        clickerToastFrame.background:SetTexCoord(0, .605, 0, .703)
+
+        clickerToastFrame.unlocked = clickerToastFrame:CreateFontString("Unlocked", "OVERLAY", Clicker.db.profile.clickChatColor)
+        clickerToastFrame.unlocked:SetPoint("LEFT", clickerToastFrame, "LEFT", 60, 15)
+        clickerToastFrame.unlocked:SetFont(addonpath .. "Media\\PB-JyRM.ttf", 16, "OUTLINE")
+        clickerToastFrame.unlocked:SetText(Clicker.db.profile.toastText)
+
+
+    if Clicker.db.profile.toastEnabled then
+        C_Timer.After(0.5, function()
+            --print("Showing Clicker Toast")
+            local toast = C_Toast.New( {
+                text = Clicker.db.profile.toastText,
+                icon = addonpath .. "Media\\ui-achievement-alert-icon"

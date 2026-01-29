@@ -39,7 +39,8 @@
         "SELECTED_CHAT_FRAME",
         "FONT_COLOR_CODE_CLOSE",
         "hash_SlashCmdList",
-        "MinimalSliderWithSteppersMixin"
+        "MinimalSliderWithSteppersMixin",
+        "BACKGROUND"
     ],
     "Lua.diagnostics.disable": [
         "assign-type-mismatch"

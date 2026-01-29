@@ -15,3 +15,5 @@ This addon will play a clicker sound effect for various events that the player c
 If you run into any issues with the addon, please create a GitHub issue and specify the verison of the game and the version of the addon you're using. Please include a detailed description of how the problem occurred, with screenshots and other supporting information so I can best diagnose the issue :)
 
 This addon would not be possible without the amazing community from the WowUIDev Discord, specifically "Numy"!
+
+Font licensed for commercial use by http://bythebutterfly.com https://www.fontspace.com/bythebutterfly
