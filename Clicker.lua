@@ -30,17 +30,11 @@ function Clicker:BuildOptionsPanel()
 				order = 2,
 				name = "|TInterface\\AddOns\\Clicker\\Media\\clicker100_trans:100:100:0:20|t |cFFFFFFFFMade by  |cFFC41E3ARatrampage-Nazgrim|r \n",
 			},
-            spacer = {
-                type = "description",
-                fontSize = "large",
-                order = 3,
-                name = " ",
-            },
             numClicks = {
                 type = "description",
                 fontSize = "medium",
-                order = 4,
-                name = "Total Clicks Recorded: |cFF36F7BC" .. Clicker.db.profile.numClicks .. "|r \n",
+                order = 3,
+                name = function() return ("Total Clicks Recorded: %d|cFF36F7BC"):format(Clicker.db.profile.numClicks) end
             },
             main = {
                 name = "General Options",
@@ -233,9 +227,10 @@ function Clicker:playClick()
     print("Calling playClick function")
     if not Clicker.db.profile.muted then
         PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
-        print("Played Sound")
-        print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
+        --print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         Clicker.db.profile.numClicks = Clicker.db.profile.numClicks + 1
+        
+        --print(Clicker.db.profile.numClicks .. " total clicks recorded.")
     end
 end
 
@@ -244,26 +239,21 @@ local function eventHandler(self, event, ...)
         print("Player has leveled up. Click Time!.")
         if not Clicker.db.profile.muted then
             Clicker:playClick()
-            print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         end
     elseif event == "ACHIEVEMENT_EARNED" then
         print("Player earned an achievement. Click Time!.")
         if not Clicker.db.profile.muted then
             Clicker:playClick()
-            print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         end
     elseif event == "NEW_PET_ADDED" then
         print("Player added a new pet to their collection. Click Time!.")
         if not Clicker.db.profile.muted then
             Clicker:playClick()
-            print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         end
     elseif event == "ZONE_CHANGED" then
         print("Player changed zones (debug). Click Time!.")
         if not Clicker.db.profile.muted then
-            print("Inside ZONE_CHANGED event handler")
             Clicker:playClick()
-            print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         end
     end
 end
