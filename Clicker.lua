@@ -65,7 +65,7 @@ function Clicker:BuildOptionsPanel()
                     },
                     toastText = {
                         type = "input",
-                        name = "Label Text",
+                        name = "Click Toast Text",
                         desc = "Text the addon will congratulate you with each time a click event happens.",
                         order = 1.3,
                         get = function(info) return Clicker.db.profile.toastText end,
@@ -92,6 +92,14 @@ function Clicker:BuildOptionsPanel()
                             Clicker.db.profile.numClicks = 0
                             print("Clicker total clicks reset to 0.")
                         end,
+                    },
+                    clickChatColor = {
+                        type = "input",
+                        name = "Click Chat Color",
+                        desc = "Enter an 8 digit hex color code here for the click chat messages. Example: FF36F7BC for a light blue color.",
+                        order = 1.6,
+                        get = function(info) return Clicker.db.profile.clickChatColor end,
+                        set = function(info, value) Clicker.db.profile.clickChatColor = value end,
                     },
                     volumeHeader = {
 						name = "Volume Settings",
@@ -153,6 +161,7 @@ function Clicker:OnInitialize()
             clickerEnabled = true,
             toastEnabled = true,
             toastText = "Good Job!",
+            clickChatColor = "FF36F7BC",
             muted = false,
             soundChannel = "Master",
             volumeLevel = "Default",
@@ -228,7 +237,7 @@ function Clicker:playClick()
         PlaySoundFile("Interface\\AddOns\\Clicker\\Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
         --print("Clicker test sound played on channel " .. Clicker.db.profile.soundChannel .. ", filename is " .. Clicker.db.profile.volumeLevel)
         Clicker.db.profile.numClicks = Clicker.db.profile.numClicks + 1
-        print("|cFF36F7BCClick! " .. Clicker.db.profile.toastText .. " You have clicked " .. Clicker.db.profile.numClicks .. " times.|r")
+        print("|c" .. Clicker.db.profile.clickChatColor .. "Click! " .. Clicker.db.profile.toastText .. " You have clicked " .. Clicker.db.profile.numClicks .. " times.|r")
         --print(Clicker.db.profile.numClicks .. " total clicks recorded.")
     end
 end
