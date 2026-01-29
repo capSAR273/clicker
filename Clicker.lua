@@ -163,7 +163,7 @@ function Clicker:OnInitialize()
             clickChatColor = "FFFF73A5",
             muted = false,
             soundChannel = "Master",
-            volumeLevel = "Default",
+            volumeLevel = "clicker",
             numClicks = 0,
         },
     }
@@ -217,7 +217,7 @@ function Clicker:OnEnable()
     Clicker:BuildOptionsPanel()
     for i=1, Clicker.max_window do
         Clicker.window[i] = Clicker:createToastFrame()
-        Clicker.window[i]:SetPoint("RIGHT", -350, 0)
+        Clicker.window[i]:SetPoint("RIGHT", -350, -28+ (100*i))
     end
 end
 
@@ -250,26 +250,23 @@ function Clicker:playClick()
 end
 
 local function eventHandler(self,event, ...)
-    print("Clicker Event Handler triggered for event: " .. event)
     if event == "PLAYER_LEVEL_UP" then
-        print("Player has leveled up. Click Time!")
+        print("(debug) Player has leveled up. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
-            Clicker:showToast("Level: " .. Clicker.playerLevel, Clicker.playerLevel, addonpath .. "Media\\bone_bw64", nil)
+            Clicker:showToast("Level Up!: " .. Clicker.playerLevel, Clicker.playerLevel, addonpath .. "Media\\bone_bw64", nil)
         end
     elseif event == "ACHIEVEMENT_EARNED" then
-        print("Player earned an achievement. Click Time!")
+        print("(debug) Player earned an achievement. Click Time!")
         Clicker:playClick()
     elseif event == "NEW_PET_ADDED" then
-        print("Player added a new pet to their collection. Click Time!")
+        print("(debug) Player added a new pet to their collection. Click Time!")
         Clicker:playClick()
     elseif event == "ZONE_CHANGED" then
-        print("ZONE_CHANGED event detected.")
-        print("Player changed zones (debug). Click Time!")
+        print("(debug) Player changed zones. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
-            Clicker:showToast("Zone Changed!")
-            print("Showing toast (debug).")
+            Clicker:showToast("+ Zone Changed! +")
         end
     end
 end
@@ -327,7 +324,7 @@ function Clicker:createToastFrame()
             end
         end
 
-        if clickerTF.showTime + 10 < GetTime() then
+        if clickerTF.showTime + 8 < GetTime() then
             clickerTF:SetAlpha(clickerTF:GetAlpha() - .05)
             if clickerTF:GetAlpha() <= .05 then
                 clickerTF:Hide()
@@ -342,16 +339,16 @@ function Clicker:createToastFrame()
         clickerTF.background:SetPoint("BOTTOMRIGHT", 0, 0)
         clickerTF.background:SetTexCoord(0, .605, 0, .703)
 
-        clickerTF.toastGreet = clickerTF:CreateFontString("Unlocked", "OVERLAY", "GameFontBlack")
+        clickerTF.toastGreet = clickerTF:CreateFontString("ToastGreet", "OVERLAY", "GameFontBlack")
         clickerTF.toastGreet:SetSize(200, 12)
-        clickerTF.toastGreet:SetPoint("TOP", 7, -23)
-        clickerTF.toastGreet:SetFont(addonpath .. "Media\\PB-JyRM.ttf", 16, "OUTLINE")
+        clickerTF.toastGreet:SetPoint("TOP", 8, -22)
+        clickerTF.toastGreet:SetFont(addonpath .. "Media\\PBEdit.ttf", 16, "THICKOUTLINE")
 
-        clickerTF.name = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
-        clickerTF.name:SetSize(240, 16)
-        clickerTF.name:SetPoint("BOTTOMLEFT", 72, 36)
-        clickerTF.name:SetPoint("BOTTOMRIGHT", -60, 36)
-        clickerTF.name:SetFont(addonpath .. "Media\\PB-JyRM.ttf", 16, "")
+        clickerTF.eventName = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
+        clickerTF.eventName:SetSize(240, 16)
+        clickerTF.eventName:SetPoint("BOTTOMLEFT", 72, 35)
+        clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 35)
+        clickerTF.eventName:SetFont(addonpath .. "Media\\PBEdit.ttf", 16, "")
 
         clickerTF.glow = clickerTF:CreateTexture("glow", "OVERLAY")
         clickerTF.glow:SetTexture(addonpath .. "Media\\ui-achievement-alert-glow")
@@ -372,22 +369,21 @@ function Clicker:createToastFrame()
         clickerTF.shine:SetAlpha(0)
 
         clickerTF.icon = CreateFrame("Frame", "icon", clickerTF)
-        clickerTF.icon:SetWidth(128)
-        clickerTF.icon:SetHeight(128)
+        clickerTF.icon:SetWidth(124)
+        clickerTF.icon:SetHeight(124)
         clickerTF.icon:SetPoint("TOPLEFT", -26, 16)
 
-        clickerTF.icon.texture = clickerTF.icon:CreateTexture("texture", "ARTWORK")
-        clickerTF.icon.texture:SetPoint("CENTER", 0, 3)
-        clickerTF.icon.texture:SetWidth(40)
-        clickerTF.icon.texture:SetHeight(40)
-        
-        clickerTF.icon.backfill = clickerTF.icon:CreateTexture("backfill", "BACKGROUND")
-        clickerTF.icon.backfill:SetBlendMode("ADD")
-        clickerTF.icon.backfill:SetTexture(addonpath .. "Media\\ui-achievement-iconframe-backfill")
-        clickerTF.icon.backfill:SetPoint("CENTER", 0, 0)
-        clickerTF.icon.backfill:SetWidth(64)
-        clickerTF.icon.backfill:SetHeight(64)
+        clickerTF.icon.bling = clickerTF.icon:CreateTexture("bling", "BORDER")
+        clickerTF.icon.bling:SetTexture(addonpath .. "Media\\ui-achievement-bling")
+        clickerTF.icon.bling:SetPoint("CENTER", -1, 1)
+        clickerTF.icon.bling:SetWidth(116)
+        clickerTF.icon.bling:SetHeight(116)
 
+        clickerTF.icon.text = clickerTF:CreateFontString("Icon", "OVERLAY", "GameFontHighlight")
+        clickerTF.icon.text:SetSize(64, 64)
+        clickerTF.icon.text:SetPoint("LEFT", 2, 0)
+        clickerTF.icon.text:SetFont(addonpath .. "Media\\PuppyBelliesEdit.ttf", 48, "")
+        
         clickerTF.icon.overlay = clickerTF.icon:CreateTexture("overlay", "OVERLAY")
         clickerTF.icon.overlay:SetTexture(addonpath .. "Media\\ui-achievement-iconframe")
         clickerTF.icon.overlay:SetPoint("CENTER", -1, 2)
@@ -400,14 +396,12 @@ function Clicker:createToastFrame()
 end
 
 function Clicker:showToast(text)
-    print("Entered showToast")
     for i=1, Clicker.max_window do
         if not Clicker.window[i]:IsVisible() then
             Clicker.window[i].toastGreet:SetText("|c" .. Clicker.db.profile.clickChatColor .. Clicker.db.profile.toastText .. "|r")
-            Clicker.window[i].name:SetText("|c" .. Clicker.db.profile.clickChatColor .. text .. "|r")
-
+            Clicker.window[i].eventName:SetText("|c" .. Clicker.db.profile.clickChatColor .. text .. "|r")
+            Clicker.window[i].icon.text:SetText("|c" .. Clicker.db.profile.clickChatColor .. "!" .. "|r")
             Clicker.window[i]:Show()
-            print("Showing Toast Frame")
             return
         end
     end
