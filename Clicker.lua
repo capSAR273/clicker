@@ -217,7 +217,7 @@ function Clicker:OnEnable()
     Clicker:BuildOptionsPanel()
     for i=1, Clicker.max_window do
         Clicker.window[i] = Clicker:createToastFrame()
-        Clicker.window[i]:SetPoint("BOTTOM", 0, 28 + (100*i))
+        Clicker.window[i]:SetPoint("RIGHT", -350, 0)
     end
 end
 
@@ -268,7 +268,7 @@ local function eventHandler(self,event, ...)
         print("Player changed zones (debug). Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
-            Clicker:showToast("Zone Changed!", 0, addonpath .. "Media\\bone_bw64", nil)
+            Clicker:showToast("Zone Changed!")
             print("Showing toast (debug).")
         end
     end
@@ -342,15 +342,16 @@ function Clicker:createToastFrame()
         clickerTF.background:SetPoint("BOTTOMRIGHT", 0, 0)
         clickerTF.background:SetTexCoord(0, .605, 0, .703)
 
-        clickerTF.unlocked = clickerTF:CreateFontString("Unlocked", "OVERLAY", "GameFontBlack")
-        clickerTF.unlocked:SetSize(200, 12)
-        clickerTF.unlocked:SetPoint("LEFT", clickerTF, "TOP", 7, -23)
-        clickerTF.unlocked:SetFont(addonpath .. "Media\\PB-JyRM.ttf", 12, "OUTLINE")
+        clickerTF.toastGreet = clickerTF:CreateFontString("Unlocked", "OVERLAY", "GameFontBlack")
+        clickerTF.toastGreet:SetSize(200, 12)
+        clickerTF.toastGreet:SetPoint("TOP", 7, -23)
+        clickerTF.toastGreet:SetFont(addonpath .. "Media\\PB-JyRM.ttf", 16, "OUTLINE")
 
         clickerTF.name = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
         clickerTF.name:SetSize(240, 16)
-        clickerTF.name:SetPoint("BOTTOMLEFT", clickerTF, "TOP", 72, 36)
-        clickerTF.name:SetPoint("BOTTOMRIGHT", clickerTF, "TOP", -60, 36)
+        clickerTF.name:SetPoint("BOTTOMLEFT", 72, 36)
+        clickerTF.name:SetPoint("BOTTOMRIGHT", -60, 36)
+        clickerTF.name:SetFont(addonpath .. "Media\\PB-JyRM.ttf", 16, "")
 
         clickerTF.glow = clickerTF:CreateTexture("glow", "OVERLAY")
         clickerTF.glow:SetTexture(addonpath .. "Media\\ui-achievement-alert-glow")
@@ -377,8 +378,8 @@ function Clicker:createToastFrame()
 
         clickerTF.icon.texture = clickerTF.icon:CreateTexture("texture", "ARTWORK")
         clickerTF.icon.texture:SetPoint("CENTER", 0, 3)
-        clickerTF.icon.texture:SetWidth(64)
-        clickerTF.icon.texture:SetHeight(64)
+        clickerTF.icon.texture:SetWidth(40)
+        clickerTF.icon.texture:SetHeight(40)
         
         clickerTF.icon.backfill = clickerTF.icon:CreateTexture("backfill", "BACKGROUND")
         clickerTF.icon.backfill:SetBlendMode("ADD")
@@ -394,35 +395,17 @@ function Clicker:createToastFrame()
         clickerTF.icon.overlay:SetWidth(72)
         clickerTF.icon.overlay:SetTexCoord(0, 0.5625, 0, 0.5625)
 
-        clickerTF.shield = CreateFrame("Frame", "shield", clickerTF)
-        clickerTF.shield:SetWidth(64)
-        clickerTF.shield:SetHeight(64)
-        clickerTF.shield:SetPoint("TOPRIGHT", -10, -13)
-
-        clickerTF.shield.icon = clickerTF.shield:CreateTexture("icon", "BACKGROUND")
-        clickerTF.shield.icon:SetTexture(addonpath .. "Media\\ui-achievement-shields")
-        clickerTF.shield.icon:SetWidth(52)
-        clickerTF.shield.icon:SetHeight(48)
-        clickerTF.shield.icon:SetPoint("TOPRIGHT", 1, -8)
-
-        clickerTF.shield.points = clickerTF.shield:CreateFontString("Name", "OVERLAY", "GameFontWhite")
-        clickerTF.shield.points:SetPoint("CENTER", 7, 2)
-        clickerTF.shield.points:SetWidth(64)
-        clickerTF.shield.points:SetHeight(64)
-
         return clickerTF
     end
 end
 
-function Clicker:showToast(text, points, icon, elite, header)
+function Clicker:showToast(text)
     print("Entered showToast")
     for i=1, Clicker.max_window do
         if not Clicker.window[i]:IsVisible() then
-            Clicker.window[i].unlocked:SetText(Clicker.db.profile.toastText or "DUMMY")
-            Clicker.window[i].name:SetText(text or Clicker.db.profile.toastText or "DUMMY")
-            Clicker.window[i].icon.texture:SetTexture(icon or addonpath .. "Media\\bone_trans64")
+            Clicker.window[i].toastGreet:SetText("|c" .. Clicker.db.profile.clickChatColor .. Clicker.db.profile.toastText .. "|r")
+            Clicker.window[i].name:SetText("|c" .. Clicker.db.profile.clickChatColor .. text .. "|r")
 
-            Clicker.window[i].shield.points:SetText(points or "10")
             Clicker.window[i]:Show()
             print("Showing Toast Frame")
             return
