@@ -4,18 +4,16 @@ Clicker = LibStub("AceAddon-3.0"):NewAddon("Clicker", "AceConsole-3.0", "AceTime
 AceConfig = LibStub("AceConfig-3.0")
 AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
-
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata
 Clicker.playerGUID = UnitGUID("player")
 Clicker.playerName = UnitName("player")
 Clicker.playerLevel = UnitLevel("player")
 local addonpath = "Interface\\AddOns\\Clicker\\"
 local _G = _G
-local lwin = LibStub("LibWindow-1.1")
 
 Clicker.window = {}
 Clicker.max_window = 5
-
+Lwin = LibStub("LibWindow-1.1")
 
 local moveFrame = CreateFrame("Frame", "ClickerMoveFrame", UIParent, "BackdropTemplate")
 moveFrame:SetSize(300, 500)
@@ -23,10 +21,9 @@ moveFrame:SetPoint("CENTER")
 moveFrame:SetBackdrop(BACKDROP_TUTORIAL_16_16)
 moveFrame.title = moveFrame:CreateFontString(nil, "OVERLAY")
 moveFrame.title:SetFontObject("GameFontHighlight")
-moveFrame.title:SetPoint("LEFT", moveFrame.TitleBg, "CENTER", 5, 0)
+moveFrame.title:SetPoint("TOP", moveFrame.TitleBg, "CENTER", 0, 0)
 moveFrame.title:SetText("Clicker Popup Mover")
 moveFrame:SetAlpha(0)
-lwin.RegisterConfig(moveFrame, Clicker.db.profile)
 
 function Clicker:BuildOptionsPanel()
     local options = {
@@ -225,15 +222,13 @@ function Clicker:OnInitialize()
             end
         elseif command == "move" then
             if moveFrame:GetAlpha() == 1 then
+                Lwin.SavePosition(moveFrame)
                 moveFrame:SetAlpha(0)
                 print("Clicker popup mover hidden.")
             else
                 moveFrame:SetAlpha(1)
-                moveFrame:EnableMouse(true)
-                moveFrame:SetMovable(true)
-                moveFrame:RegisterForDrag("LeftButton")
-                moveFrame:SetScript("OnDragStart", moveFrame.StartMoving)
-                moveFrame:SetScript("OnDragStop", lwin.SavePosition)
+                Lwin.MakeDraggable(moveFrame)
+                Lwin.EnableMouseOnAlt(moveFrame)
                 print("Clicker popup mover shown. Drag it to reposition the popup location.")
             end
         else
@@ -246,8 +241,8 @@ function Clicker:OnInitialize()
             print("/clicker secret - ???");
         end
     end
-    lwin.RestorePosition(moveFrame)
     self.db = LibStub("AceDB-3.0"):New("ClickerDB", defaults, true)
+    Lwin.RegisterConfig(moveFrame, self.db.profile)
 end
 
 function Clicker:OnEnable()
