@@ -3,7 +3,7 @@
 Clicker = LibStub("AceAddon-3.0"):NewAddon("Clicker", "AceConsole-3.0", "AceTimer-3.0", "AceComm-3.0", "AceEvent-3.0")
 AceConfig = LibStub("AceConfig-3.0")
 AceConfigDialog = LibStub("AceConfigDialog-3.0")
-
+local defaults = {}
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata
 Clicker.playerGUID = UnitGUID("player")
 Clicker.playerName = UnitName("player")
@@ -166,7 +166,8 @@ function Clicker:BuildOptionsPanel()
 end
 
 function Clicker:OnInitialize()
-    local defaults = {
+    self.db = LibStub("AceDB-3.0"):New("ClickerDB", defaults, true)
+    defaults = {
         profile = {
             clickerEnabled = true,
             toastEnabled = true,
@@ -241,7 +242,6 @@ function Clicker:OnInitialize()
             print("/clicker secret - ???");
         end
     end
-    self.db = LibStub("AceDB-3.0"):New("ClickerDB", defaults, true)
     Lwin.RegisterConfig(moveFrame, self.db.profile)
 end
 
