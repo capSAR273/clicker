@@ -395,8 +395,8 @@ function Clicker:createToastFrame(mFrame)
 
         clickerTF.eventName = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
         clickerTF.eventName:SetSize(240, 16)
-        clickerTF.eventName:SetPoint("BOTTOMLEFT", 72, 35)
-        clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 35)
+        clickerTF.eventName:SetPoint("CENTER", 0, 0)
+        --clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 35)
         clickerTF.eventName:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 16, "")
 
         clickerTF.glow = clickerTF:CreateTexture("glow", "OVERLAY")
