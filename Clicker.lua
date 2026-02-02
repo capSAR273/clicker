@@ -249,9 +249,17 @@ function Clicker:BuildOptionsPanel()
                         get = function(info) return Clicker.db.profile.mPlusWkRecordEnabled end,
                         set = function(info, value) Clicker.db.profile.mPlusWkRecordEnabled = value end,
                     },
+                    newAppearanceEnabled = {
+                        type = "toggle",
+                        name = "New Appearance Unlocked",
+                        desc = "Enable click sound and popup on new transmog appearance added events.",
+                        order = 2.12,
+                        get = function(info) return Clicker.db.profile.newAppearanceEnabled end,
+                        set = function(info, value) Clicker.db.profile.newAppearanceEnabled = value end,
+                    },
                 }
             }
-        },
+        }
     }
     Clicker.optionsFrame = AceConfigDialog:AddToBlizOptions("Clicker_options", "Clicker")
     AceConfig:RegisterOptionsTable("Clicker_options", options, nil)
@@ -280,7 +288,7 @@ function Clicker:OnInitialize()
             newToyEnabled = true,
             bMarketWinEnabled = true,
             mPlusWkRecordEnabled = true,
-
+            newAppearanceEnabled = true,
         },
     }
 end
@@ -413,6 +421,7 @@ local randEvents = {
     "New Toy Acquired!",
     "BMAH Bid Won!",
     "New Weekly M+ Record!",
+    "New Appearance Added!"
 }
 
 local function pickRandEvent()
@@ -472,7 +481,7 @@ local function eventHandler(self,event, ...)
         print("(debug) Player acquired a new toy. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
-            Clicker:showToast("New Toy Acquired!")
+            Clicker:showToast("New Toy Added!")
         end
     elseif event == "BLACK_MARKET_WON" and Clicker.db.profile.bMarketWinEnabled then
         print("(debug) Player won a BMAH bid. Click Time!")
@@ -484,7 +493,13 @@ local function eventHandler(self,event, ...)
         print("(debug) Player set a new weekly Mythic+ record. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
-            Clicker:showToast("New Weekly M+ Record!")
+            Clicker:showToast("New M+ Record!")
+        end
+    elseif event == "TRANSMOG_COLLECTION_SOURCE_ADDED" and Clicker.db.profile.newAppearanceEnabled then
+        print("(debug) Player added a new transmog source. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("New Appearance!")
         end
     end
 end
@@ -505,6 +520,7 @@ function Clicker:registerEvents()
     eventListenerFrame:RegisterEvent("NEW_TOY_ADDED")
     eventListenerFrame:RegisterEvent("BLACK_MARKET_WON")
     eventListenerFrame:RegisterEvent("MYTHIC_PLUS_NEW_WEEKLY_RECORD")
+    eventListenerFrame:RegisterEvent("TRANSMOG_COLLECTION_SOURCE_ADDED")
 end
 
 
@@ -571,15 +587,15 @@ function Clicker:createToastFrame(mFrame)
         clickerTF.background:SetTexCoord(0, .605, 0, .703)
 
         clickerTF.toastGreet = clickerTF:CreateFontString("ToastGreet", "OVERLAY", "GameFontBlack")
-        clickerTF.toastGreet:SetSize(200, 12)
+        clickerTF.toastGreet:SetSize(280, 12)
         clickerTF.toastGreet:SetPoint("TOP", 8, -22)
         clickerTF.toastGreet:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 16, "OUTLINE")
 
         clickerTF.eventName = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
-        clickerTF.eventName:SetSize(240, 16)
-        clickerTF.eventName:SetPoint("CENTER", 10, -2)
-        --clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 35)
-        clickerTF.eventName:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 16, "")
+        clickerTF.eventName:SetSize(280, 16)
+        clickerTF.eventName:SetPoint("BOTTOMLEFT", 72, 36)
+        clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 36)
+        clickerTF.eventName:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 14, "")
 
         clickerTF.glow = clickerTF:CreateTexture("glow", "OVERLAY")
         clickerTF.glow:SetTexture(addonpath .. "Media\\ui-achievement-alert-glow")
