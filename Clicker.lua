@@ -102,8 +102,8 @@ function Clicker:BuildOptionsPanel()
                         name = "Enable Secret?",
                         desc = "A mysterious setting that does nothing... or does it?",
                         order = 1.6,
-                        get = function(info) return Clicker.db.profile.bark end,
-                        set = function(info, value) Clicker.db.profile.bark = value end,
+                        get = function(info) return Clicker.db.profile.secret end,
+                        set = function(info, value) Clicker.db.profile.secret = value end,
                     },
                     volumeHeader = {
 						name = "Volume Settings",
@@ -185,19 +185,11 @@ function Clicker:BuildOptionsPanel()
                         get = function(info) return Clicker.db.profile.newPetEnabled end,
                         set = function(info, value) Clicker.db.profile.newPetEnabled = value end,
                     },
-                    zoneEnabled = {
-                        type = "toggle",
-                        name = "Zone Change",
-                        desc = "Enable click sound and popup on zone change events.",
-                        order = 2.4,
-                        get = function(info) return Clicker.db.profile.zoneEnabled end,
-                        set = function(info, value) Clicker.db.profile.zoneEnabled = value end,
-                    },
                     questCompleteEnabled = {
                         type = "toggle",
                         name = "Quest Complete",
                         desc = "Enable click sound and popup on quest complete events.",
-                        order = 2.5,
+                        order = 2.4,
                         get = function(info) return Clicker.db.profile.questCompleteEnabled end,
                         set = function(info, value) Clicker.db.profile.questCompleteEnabled = value end,
                     },
@@ -205,7 +197,7 @@ function Clicker:BuildOptionsPanel()
                         type = "toggle",
                         name = "New House Level Unlocked",
                         desc = "Enable click sound and popup on new house level events.",
-                        order = 2.6,
+                        order = 2.5,
                         get = function(info) return Clicker.db.profile.newHouseLvlEnabled end,
                         set = function(info, value) Clicker.db.profile.newHouseLvlEnabled = value end,
                     },
@@ -213,7 +205,7 @@ function Clicker:BuildOptionsPanel()
                         type = "toggle",
                         name = "New Mount Unlocked",
                         desc = "Enable click sound and popup on new mount added events.",
-                        order = 2.7,
+                        order = 2.6,
                         get = function(info) return Clicker.db.profile.newMountEnabled end,
                         set = function(info, value) Clicker.db.profile.newMountEnabled = value end,
                     },
@@ -221,7 +213,7 @@ function Clicker:BuildOptionsPanel()
                         type = "toggle",
                         name = "New Housing Item Unlocked",
                         desc = "Enable click sound and popup on new housing item acquired events.",
-                        order = 2.8,
+                        order = 2.7,
                         get = function(info) return Clicker.db.profile.newHousingItemEnabled end,
                         set = function(info, value) Clicker.db.profile.newHousingItemEnabled = value end,
                     },
@@ -229,7 +221,7 @@ function Clicker:BuildOptionsPanel()
                         type = "toggle",
                         name = "New Toy Unlocked",
                         desc = "Enable click sound and popup on new toy added events.",
-                        order = 2.9,
+                        order = 2.8,
                         get = function(info) return Clicker.db.profile.newToyEnabled end,
                         set = function(info, value) Clicker.db.profile.newToyEnabled = value end,
                     },
@@ -237,7 +229,7 @@ function Clicker:BuildOptionsPanel()
                         type = "toggle",
                         name = "BMAH Won",
                         desc = "Enable click sound and popup on Black Market Auction House win events.",
-                        order = 2.10,
+                        order = 2.9,
                         get = function(info) return Clicker.db.profile.bMarketWinEnabled end,
                         set = function(info, value) Clicker.db.profile.bMarketWinEnabled = value end,
                     },
@@ -245,7 +237,7 @@ function Clicker:BuildOptionsPanel()
                         type = "toggle",
                         name = "Mythic+ Weekly Record",
                         desc = "Enable click sound and popup on new Mythic+ weekly record events.",
-                        order = 2.11,
+                        order = 2.10,
                         get = function(info) return Clicker.db.profile.mPlusWkRecordEnabled end,
                         set = function(info, value) Clicker.db.profile.mPlusWkRecordEnabled = value end,
                     },
@@ -253,9 +245,40 @@ function Clicker:BuildOptionsPanel()
                         type = "toggle",
                         name = "New Appearance Unlocked",
                         desc = "Enable click sound and popup on new transmog appearance added events.",
-                        order = 2.12,
+                        order = 2.11,
                         get = function(info) return Clicker.db.profile.newAppearanceEnabled end,
                         set = function(info, value) Clicker.db.profile.newAppearanceEnabled = value end,
+                    },
+                }
+            },
+            easterEgg = {
+                name = "Secret Options",
+                type = "group",
+                order = 3,
+                hidden = function() return not Clicker.db.profile.secret end,
+                args = {
+                    secretHeader = {
+                        name = "Secret Options",
+						type = "header",
+						width = "full",
+						order = 3.0,
+                    },
+                    validChatChannels = {
+                        type = "multiselect",
+                        name = "Allowed Chat Channels",
+                        desc = "Which chat channels allow modified speech?",
+                        order = 3.1,
+                        values = {
+                            say = "Say",
+                            yell = "Yell",
+                            party = "Party",
+                            raid = "Raid",
+                            guild = "Guild",
+                            officer = "Officer",
+                            whisper = "Whisper",
+                        },
+                        get = function(info, key) return Clicker.db.profile.speakChannels[key] end,
+                        set = function(info, key, value) Clicker.db.profile.speakChannels[key] = value end,
                     },
                 }
             }
@@ -276,11 +299,10 @@ function Clicker:OnInitialize()
             soundChannel = "Master",
             volumeLevel = "clicker",
             numClicks = 0,
-            bark = false,
+            secret = false,
             levelUpEnabled = true,
             achievementEnabled = true,
             newPetEnabled = true,
-            zoneEnabled = true,
             questCompleteEnabled = true,
             newHouseLvlEnabled = true,
             newMountEnabled = true,
@@ -289,6 +311,16 @@ function Clicker:OnInitialize()
             bMarketWinEnabled = true,
             mPlusWkRecordEnabled = true,
             newAppearanceEnabled = true,
+            debug=false,
+            speakChannels = {
+                say = true,
+                yell = true,
+                party = true,
+                raid = true,
+                guild = true,
+                officer = true,
+                whisper = true,
+            },
         },
     }
 end
@@ -304,17 +336,14 @@ function Clicker:regCommands(mFrame)
             if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\" .. self.db.profile.volumeLevel .. ".ogg", self.db.profile.soundChannel)
             print("Clicker test sound played on channel " .. self.db.profile.soundChannel .. ", filename is " .. self.db.profile.volumeLevel)
             end
-
         elseif command == "test6" then
             if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\clicker6.ogg", self.db.profile.soundChannel)
             print("Clicker test +6db sound played on the channel " .. self.db.profile.soundChannel)
             end
-
         elseif command == "test12" then
             if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\clicker12.ogg", self.db.profile.soundChannel)
             print("Clicker test +12db sound played on the channel " .. self.db.profile.soundChannel)
             end
-
         elseif command == "test18" then
             if not self.db.profile.muted then PlaySoundFile(addonpath .."Media\\clicker18.ogg", self.db.profile.soundChannel)
             print("Clicker test +18db sound played on the channel " .. self.db.profile.soundChannel)
@@ -329,10 +358,10 @@ function Clicker:regCommands(mFrame)
             self.db.profile.volumeLevel = "Default"
             print("All Clicker settings have been reset to defaults.")
         elseif command == "secret" then
-            self.db.profile.bark = not self.db.profile.bark
-            if not self.db.profile.bark then
+            self.db.profile.secret = not self.db.profile.secret
+            if not self.db.profile.secret then
                 print("Your normal speech is magically restored!")
-            elseif self.db.profile.bark then
+            elseif self.db.profile.secret then
                 print("You found the easter egg! Your speech has been enhanced!")
             end
         elseif command == "move" then
@@ -342,6 +371,13 @@ function Clicker:regCommands(mFrame)
             else
                 mFrame:SetAlpha(1)
                 print("Clicker popup mover shown. Drag it to reposition the popup location.")
+            end
+        elseif command == "debug" then
+            self.db.profile.debug = not self.db.profile.debug
+            if self.db.profile.debug then
+                print("Clicker debug mode enabled.")
+            else
+                print("Clicker debug mode disabled.")
             end
         else
             print("Clicker Addon Commands:")
@@ -446,13 +482,13 @@ local function eventHandler(self,event, ...)
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Pet Added!")
         end
-    elseif event == "ZONE_CHANGED" and Clicker.db.profile.zoneEnabled then
+    elseif event == "ZONE_CHANGED" and Clicker.db.profile.debug then
         print("(debug) Player changed zones. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast(pickRandEvent())
         end
-    elseif event == "QUEST_COMPLETE" and Clicker.db.profile.questCompleteEnabled then
+    elseif event == "QUEST_TURNED_IN" and Clicker.db.profile.questCompleteEnabled then
         print("(debug) Player completed a quest. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
@@ -512,7 +548,7 @@ function Clicker:registerEvents()
     eventListenerFrame:RegisterEvent("ZONE_CHANGED")
     eventListenerFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
     eventListenerFrame:RegisterEvent("CHALLENGE_MODE_NEW_RECORD")
-    eventListenerFrame:RegisterEvent("QUEST_COMPLETE")
+    eventListenerFrame:RegisterEvent("QUEST_TURNED_IN")
     eventListenerFrame:RegisterEvent("HOUSE_LEVEL_CHANGED")
     eventListenerFrame:RegisterEvent("NEW_MOUNT_ADDED")
     eventListenerFrame:RegisterEvent("NEW_HOUSING_ITEM_ACQUIRED")
@@ -524,7 +560,6 @@ end
 
 
 function Clicker:createToastFrame(mFrame)
-    --AchievementAlertFrameTemplate?
     local clickerTF = CreateFrame("Button", "Achievement", mFrame)
     clickerTF:SetSize(300, 88)
     clickerTF:SetFrameStrata("DIALOG")
@@ -569,8 +604,8 @@ function Clicker:createToastFrame(mFrame)
                 clickerTF.animate = false
             end
         end
-
-        if clickerTF.showTime + 8 < GetTime() then
+        --Time to fade out
+        if clickerTF.showTime + 10 < GetTime() then
             clickerTF:SetAlpha(clickerTF:GetAlpha() - .05)
             if clickerTF:GetAlpha() <= .05 then
                 clickerTF:Hide()
@@ -587,13 +622,13 @@ function Clicker:createToastFrame(mFrame)
 
         clickerTF.toastGreet = clickerTF:CreateFontString("ToastGreet", "OVERLAY", "GameFontBlack")
         clickerTF.toastGreet:SetSize(280, 12)
-        clickerTF.toastGreet:SetPoint("TOP", 8, -22)
+        clickerTF.toastGreet:SetPoint("TOP", 8, -23)
         clickerTF.toastGreet:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 16, "OUTLINE")
 
         clickerTF.eventName = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
         clickerTF.eventName:SetSize(280, 16)
-        clickerTF.eventName:SetPoint("BOTTOMLEFT", 72, 36)
-        clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 36)
+        clickerTF.eventName:SetPoint("BOTTOMLEFT", 72, 35)
+        clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 35)
         clickerTF.eventName:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 14, "")
 
         clickerTF.glow = clickerTF:CreateTexture("glow", "OVERLAY")
@@ -657,15 +692,6 @@ function Clicker:showToast(text)
     end
 end
 
-local barkChannels = {
-	guild = false,
-	officer = false,
-    raid = false,
-    party = false,
-    say = true,
-	whisper = true,
-}
-
 local speaks = {
     "woof",
     "bark",
@@ -675,17 +701,18 @@ local speaks = {
 }
 
 local channelOptions = {
-	GUILD = function() return barkChannels.guild end,
-	OFFICER = function() return barkChannels.officer end,
-	WHISPER = function() return barkChannels.whisper end,
-    RAID = function() return barkChannels.raid end,
-    PARTY = function() return barkChannels.party end,
-    SAY = function() return barkChannels.say end,
+	GUILD = function() return Clicker.db.profile.speakChannels.guild end,
+	OFFICER = function() return Clicker.db.profile.speakChannels.officer end,
+	WHISPER = function() return Clicker.db.profile.speakChannels.whisper end,
+    RAID = function() return Clicker.db.profile.speakChannels.raid end,
+    PARTY = function() return Clicker.db.profile.speakChannels.party end,
+    SAY = function() return Clicker.db.profile.speakChannels.say end,
+    YELL = function() return Clicker.db.profile.speakChannels.yell end,
 }
 
 
 local function canBark(chatType)
-	if Clicker.db.profile.bark then
+	if Clicker.db.profile.secret then
 		if channelOptions[chatType] then
 			return channelOptions[chatType]()
 		else
@@ -703,7 +730,9 @@ end
 function C_ChatInfo.SendChatMessage(msg, chatType, ...)
     if canBark(chatType) then
         --Replace all words with a random word from the speaks table
-        print("(debug) Barking in chat!")
+        if Clicker.db.profile.debug then
+            print("(debug) Barking in chat!")
+        end
         msg = string.gsub(msg, "%w+", function(word)
             return getRandomSpeak()
         end)
