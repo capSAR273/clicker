@@ -150,6 +150,107 @@ function Clicker:BuildOptionsPanel()
                     },
                 },
             },
+            events={
+                name = "Event Options",
+                type = "group",
+                order = 2,
+                args = {
+                    eventsHeader = {
+						name = "Event Options",
+						type = "header",
+						width = "full",
+						order = 2.0,
+					},
+                    levelUpEnabled = {
+                        type = "toggle",
+                        name = "Level Up",
+                        desc = "Enable click sound and popup on level up events.",
+                        order = 2.1,
+                        get = function(info) return Clicker.db.profile.levelUpEnabled end,
+                        set = function(info, value) Clicker.db.profile.levelUpEnabled = value end,
+                    },
+                    achievementEnabled = {
+                        type = "toggle",
+                        name = "Achievement Unlocked",
+                        desc = "Enable click sound and popup on achievement earned events.",
+                        order = 2.2,
+                        get = function(info) return Clicker.db.profile.achievementEnabled end,
+                        set = function(info, value) Clicker.db.profile.achievementEnabled = value end,
+                    },
+                    newPetEnabled = {
+                        type = "toggle",
+                        name = "New Pet Unlocked",
+                        desc = "Enable click sound and popup on new pet added events.",
+                        order = 2.3,
+                        get = function(info) return Clicker.db.profile.newPetEnabled end,
+                        set = function(info, value) Clicker.db.profile.newPetEnabled = value end,
+                    },
+                    zoneEnabled = {
+                        type = "toggle",
+                        name = "Zone Change",
+                        desc = "Enable click sound and popup on zone change events.",
+                        order = 2.4,
+                        get = function(info) return Clicker.db.profile.zoneEnabled end,
+                        set = function(info, value) Clicker.db.profile.zoneEnabled = value end,
+                    },
+                    questCompleteEnabled = {
+                        type = "toggle",
+                        name = "Quest Complete",
+                        desc = "Enable click sound and popup on quest complete events.",
+                        order = 2.5,
+                        get = function(info) return Clicker.db.profile.questCompleteEnabled end,
+                        set = function(info, value) Clicker.db.profile.questCompleteEnabled = value end,
+                    },
+                    newHouseLvlEnabled = {
+                        type = "toggle",
+                        name = "New House Level Unlocked",
+                        desc = "Enable click sound and popup on new house level events.",
+                        order = 2.6,
+                        get = function(info) return Clicker.db.profile.newHouseLvlEnabled end,
+                        set = function(info, value) Clicker.db.profile.newHouseLvlEnabled = value end,
+                    },
+                    newMountEnabled = {
+                        type = "toggle",
+                        name = "New Mount Unlocked",
+                        desc = "Enable click sound and popup on new mount added events.",
+                        order = 2.7,
+                        get = function(info) return Clicker.db.profile.newMountEnabled end,
+                        set = function(info, value) Clicker.db.profile.newMountEnabled = value end,
+                    },
+                    newHousingItemEnabled = {
+                        type = "toggle",
+                        name = "New Housing Item Unlocked",
+                        desc = "Enable click sound and popup on new housing item acquired events.",
+                        order = 2.8,
+                        get = function(info) return Clicker.db.profile.newHousingItemEnabled end,
+                        set = function(info, value) Clicker.db.profile.newHousingItemEnabled = value end,
+                    },
+                    newToyEnabled = {
+                        type = "toggle",
+                        name = "New Toy Unlocked",
+                        desc = "Enable click sound and popup on new toy added events.",
+                        order = 2.9,
+                        get = function(info) return Clicker.db.profile.newToyEnabled end,
+                        set = function(info, value) Clicker.db.profile.newToyEnabled = value end,
+                    },
+                    bMarketWinEnabled = {
+                        type = "toggle",
+                        name = "BMAH Won",
+                        desc = "Enable click sound and popup on Black Market Auction House win events.",
+                        order = 2.10,
+                        get = function(info) return Clicker.db.profile.bMarketWinEnabled end,
+                        set = function(info, value) Clicker.db.profile.bMarketWinEnabled = value end,
+                    },
+                    mPlusWkRecordEnabled = {
+                        type = "toggle",
+                        name = "Mythic+ Weekly Record",
+                        desc = "Enable click sound and popup on new Mythic+ weekly record events.",
+                        order = 2.11,
+                        get = function(info) return Clicker.db.profile.mPlusWkRecordEnabled end,
+                        set = function(info, value) Clicker.db.profile.mPlusWkRecordEnabled = value end,
+                    },
+                }
+            }
         },
     }
     Clicker.optionsFrame = AceConfigDialog:AddToBlizOptions("Clicker_options", "Clicker")
@@ -168,9 +269,20 @@ function Clicker:OnInitialize()
             volumeLevel = "clicker",
             numClicks = 0,
             bark = false,
+            levelUpEnabled = true,
+            achievementEnabled = true,
+            newPetEnabled = true,
+            zoneEnabled = true,
+            questCompleteEnabled = true,
+            newHouseLvlEnabled = true,
+            newMountEnabled = true,
+            newHousingItemEnabled = true,
+            newToyEnabled = true,
+            bMarketWinEnabled = true,
+            mPlusWkRecordEnabled = true,
+
         },
     }
-    --Lwin.RestorePosition(Clicker.moveFrame)
 end
 
 function Clicker:regCommands(mFrame)
@@ -262,6 +374,7 @@ function Clicker:OnEnable()
     end 
     Clicker:regCommands(mFrame)
     Lwin.RestorePosition(mFrame)
+    Clicker:registerEvents()
 end
 
 local kbTracker = CreateFrame("Frame", "KBTracker", UIParent)
@@ -270,9 +383,7 @@ local function kbHandler(...)
     local subevent = select(2, ...)
     if subevent == "PARTY_KILL" and sourceGUID == Clicker.playerGUID then
         print("Player killed an enemy. Click Time!.")
-        if not Clicker.db.profile.muted then PlaySoundFile(addonpath .."Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
-        Clicker.db.profile.numClicks = Clicker.db.profile.numClicks + 1
-        end
+        Clicker:playClick()
     end
 end
 kbTracker:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -290,41 +401,112 @@ function Clicker:playClick()
     end
 end
 
+local randEvents = {
+    "Level Up! Woohoo!",
+    "Fresh Achievement!",
+    "New Pet Added!",
+    "Zone Changed",
+    "Quest Complete!",
+    "House Level Increased!",
+    "New Mount Unlocked!",
+    "New Housing Item!",
+    "New Toy Acquired!",
+    "BMAH Bid Won!",
+    "New Weekly M+ Record!",
+}
+
+local function pickRandEvent()
+    return randEvents[math.random(#randEvents)]
+end
+
 local function eventHandler(self,event, ...)
-    if event == "PLAYER_LEVEL_UP" then
+    if event == "PLAYER_LEVEL_UP" and Clicker.db.profile.levelUpEnabled then
         print("(debug) Player has leveled up. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("Level Up! Woohoo!")
         end
-    elseif event == "ACHIEVEMENT_EARNED" then
+    elseif event == "ACHIEVEMENT_EARNED" and Clicker.db.profile.newAchieveEnabled then
         print("(debug) Player earned an achievement. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("Fresh Achievement!")
         end
-    elseif event == "NEW_PET_ADDED" then
+    elseif event == "NEW_PET_ADDED" and Clicker.db.profile.newPetEnabled then
         print("(debug) Player added a new pet to their collection. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Pet Added!")
         end
-    elseif event == "ZONE_CHANGED" then
+    elseif event == "ZONE_CHANGED" and Clicker.db.profile.zoneEnabled then
         print("(debug) Player changed zones. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
-            Clicker:showToast("Zone Changed!")
+            Clicker:showToast(pickRandEvent())
+        end
+    elseif event == "QUEST_COMPLETE" and Clicker.db.profile.questCompleteEnabled then
+        print("(debug) Player completed a quest. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("Quest Complete!")
+        end
+    elseif event == "HOUSE_LEVEL_CHANGED" and Clicker.db.profile.newHouseLvlEnabled then
+        print("(debug) Player increased house level. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("House Level Increased!")
+        end
+    elseif event == "NEW_MOUNT_ADDED" and Clicker.db.profile.newMountEnabled then
+        print("(debug) Player added a new mount. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("New Mount Unlocked!")
+        end
+    elseif event == "NEW_HOUSING_ITEM_ACQUIRED" and Clicker.db.profile.newHousingItemEnabled then
+        print("(debug) Player acquired a new housing item. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("New Housing Item!")
+        end
+    elseif event == "NEW_TOY_ADDED" and Clicker.db.profile.newToyEnabled then
+        print("(debug) Player acquired a new toy. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("New Toy Acquired!")
+        end
+    elseif event == "BLACK_MARKET_WON" and Clicker.db.profile.bMarketWinEnabled then
+        print("(debug) Player won a BMAH bid. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("BMAH Bid Won!")
+        end
+    elseif event == "MYTHIC_PLUS_NEW_WEEKLY_RECORD" and Clicker.db.profile.mPlusWkRecordEnabled then
+        print("(debug) Player set a new weekly Mythic+ record. Click Time!")
+        Clicker:playClick()
+        if Clicker.db.profile.toastEnabled then
+            Clicker:showToast("New Weekly M+ Record!")
         end
     end
 end
---Register events to watch here
-eventListenerFrame:SetScript("OnEvent", eventHandler)
-eventListenerFrame:RegisterEvent("PLAYER_LEVEL_UP")
-eventListenerFrame:RegisterEvent("ACHIEVEMENT_EARNED")
-eventListenerFrame:RegisterEvent("NEW_PET_ADDED")
-eventListenerFrame:RegisterEvent("ZONE_CHANGED")
-eventListenerFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-eventListenerFrame:RegisterEvent("CHALLENGE_MODE_NEW_RECORD")
+
+function Clicker:registerEvents()
+    --Register events to watch here
+    eventListenerFrame:SetScript("OnEvent", eventHandler)
+    eventListenerFrame:RegisterEvent("PLAYER_LEVEL_UP")
+    eventListenerFrame:RegisterEvent("ACHIEVEMENT_EARNED")
+    eventListenerFrame:RegisterEvent("NEW_PET_ADDED")
+    eventListenerFrame:RegisterEvent("ZONE_CHANGED")
+    eventListenerFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
+    eventListenerFrame:RegisterEvent("CHALLENGE_MODE_NEW_RECORD")
+    eventListenerFrame:RegisterEvent("QUEST_COMPLETE")
+    eventListenerFrame:RegisterEvent("HOUSE_LEVEL_CHANGED")
+    eventListenerFrame:RegisterEvent("NEW_MOUNT_ADDED")
+    eventListenerFrame:RegisterEvent("NEW_HOUSING_ITEM_ACQUIRED")
+    eventListenerFrame:RegisterEvent("NEW_TOY_ADDED")
+    eventListenerFrame:RegisterEvent("BLACK_MARKET_WON")
+    eventListenerFrame:RegisterEvent("MYTHIC_PLUS_NEW_WEEKLY_RECORD")
+end
+
 
 function Clicker:createToastFrame(mFrame)
     --AchievementAlertFrameTemplate?
@@ -395,7 +577,7 @@ function Clicker:createToastFrame(mFrame)
 
         clickerTF.eventName = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
         clickerTF.eventName:SetSize(240, 16)
-        clickerTF.eventName:SetPoint("CENTER", 0, 0)
+        clickerTF.eventName:SetPoint("CENTER", 10, -2)
         --clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 35)
         clickerTF.eventName:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 16, "")
 
@@ -428,9 +610,10 @@ function Clicker:createToastFrame(mFrame)
         clickerTF.icon.bling:SetWidth(116)
         clickerTF.icon.bling:SetHeight(116)
 
+        --Exclamation mark icon
         clickerTF.icon.text = clickerTF:CreateFontString("Icon", "OVERLAY", "GameFontHighlight")
         clickerTF.icon.text:SetSize(64, 64)
-        clickerTF.icon.text:SetPoint("LEFT", 2, 0)
+        clickerTF.icon.text:SetPoint("LEFT", 2, -4)
         clickerTF.icon.text:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 48, "")
         
         clickerTF.icon.overlay = clickerTF.icon:CreateTexture("overlay", "OVERLAY")

@@ -44,7 +44,10 @@
         "COMPLETE",
         "RAID",
         "BACKDROP_TUTORIAL_16_16",
-        "ChatFrame1"
+        "ChatFrame1",
+        "LEVEL",
+        "LEVEL_UP",
+        "PLAYER_LEVEL_UP"
     ],
     "Lua.diagnostics.disable": [
         "assign-type-mismatch"
