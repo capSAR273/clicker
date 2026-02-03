@@ -200,7 +200,7 @@ function Clicker:BuildOptionsPanel()
                         type = "multiselect",
                         name = "Retail Event Selection",
                         desc = "Which events do you want to receive clicks for?",
-                        hidden = function() return not (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) end,
+                        hidden = function() return not (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) end,
                         order = 2.1,
                         values = {
                             newHousingItemEnabled = "New Housing Item Unlocked",
