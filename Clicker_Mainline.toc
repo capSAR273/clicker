@@ -2,7 +2,7 @@
 ## Title: Clicker
 ## Notes: This addon will play a clicker sound effect for various events that the player can configure.
 ## Author: StellarField
-## Version: 0.0.3
+## Version: @project-version@
 ## RequiredDeps:
 ## OptionalDeps: Ace3
 ## SavedVariables: ClickerDB

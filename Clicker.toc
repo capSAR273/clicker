@@ -1,10 +1,10 @@
-## Interface: 20505
+## Interface: 120000, 11508, 20505, 50503
 ## Title: Clicker
 ## Notes: This addon will play a clicker sound effect for various events that the player can configure.
 ## Author: StellarField
-## Version: 0.0.3
+## Version: @project-version@
 ## RequiredDeps:
-## OptionalDeps: Ace3
+## OptionalDeps:  LibStub, CallbackHandler-1.0, Ace3, LibWindow-1.1, 
 ## SavedVariables: ClickerDB
 ## IconTexture: Interface\AddOns\Clicker\Media\clicker64_trans.tga
 
