@@ -309,6 +309,12 @@ function Clicker:OnInitialize()
     }
 end
 
+local function debugPrint(...)
+  if Clicker.db.profile.debug then
+    print(...)
+  end
+end
+
 function Clicker:updateColorCode()
     Clicker.db.profile.clickChatHex = CreateColor(Clicker.db.profile.clickChatColor.r, 
                             Clicker.db.profile.clickChatColor.g, 
@@ -418,7 +424,7 @@ local function kbHandler(...)
     local sourceGUID = select(4, ...)
     local subevent = select(2, ...)
     if subevent == "PARTY_KILL" and sourceGUID == Clicker.playerGUID and Clicker.db.profile.eventsEnabled.pvpKillEnabled then
-        print("Player killed an enemy. Click Time!.")
+        debugPrint("Player killed an enemy. Click Time!.")
         Clicker:playClick()
     end
 end
@@ -457,85 +463,85 @@ end
 
 local function eventHandler(self,event, ...)
     if event == "PLAYER_LEVEL_UP" and Clicker.db.profile.eventsEnabled.levelUp then
-        print("(debug) Player has leveled up. Click Time!")
+        debugPrint("(debug) Player has leveled up. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("Level Up! Woohoo!")
         end
     elseif event == "ACHIEVEMENT_EARNED" and Clicker.db.profile.eventsEnabled.achievementEnabled then
-        print("(debug) Player earned an achievement. Click Time!")
+        debugPrint("(debug) Player earned an achievement. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("Achievement Unlocked!")
         end
     elseif event == "NEW_PET_ADDED" and Clicker.db.profile.eventsEnabled.newPetEnabled then
-        print("(debug) Player added a new pet to their collection. Click Time!")
+        debugPrint("(debug) Player added a new pet to their collection. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Pet Added!")
         end
     elseif event == "ZONE_CHANGED" and Clicker.db.profile.debug then
-        print("(debug) Player changed zones. Click Time!")
+        debugPrint("(debug) Player changed zones. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast(pickRandEvent())
         end
     elseif event == "QUEST_TURNED_IN" and Clicker.db.profile.eventsEnabled.questCompleteEnabled then
-        print("(debug) Player completed a quest. Click Time!")
+        debugPrint("(debug) Player completed a quest. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("Quest Complete!")
         end
     elseif event == "HOUSE_LEVEL_CHANGED" and Clicker.db.profile.eventsEnabled.newHouseLvlEnabled then
-        print("(debug) Player increased house level. Click Time!")
+        debugPrint("(debug) Player increased house level. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("House Level Up!")
         end
     elseif event == "NEW_MOUNT_ADDED" and Clicker.db.profile.eventsEnabled.newMountEnabled then
-        print("(debug) Player added a new mount. Click Time!")
+        debugPrint("(debug) Player added a new mount. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Mount Unlocked!")
         end
     elseif event == "NEW_HOUSING_ITEM_ACQUIRED" and Clicker.db.profile.eventsEnabled.newHousingItemEnabled then
-        print("(debug) Player acquired a new housing item. Click Time!")
+        debugPrint("(debug) Player acquired a new housing item. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Housing Item!")
         end
     elseif event == "NEW_TOY_ADDED" and Clicker.db.profile.eventsEnabled.newToyEnabled then
-        print("(debug) Player acquired a new toy. Click Time!")
+        debugPrint("(debug) Player acquired a new toy. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Toy Added!")
         end
     elseif event == "BLACK_MARKET_WON" and Clicker.db.profile.eventsEnabled.bMarketWinEnabled then
-        print("(debug) Player won a BMAH bid. Click Time!")
+        debugPrint("(debug) Player won a BMAH bid. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("BMAH Bid Won!")
         end
     elseif event == "MYTHIC_PLUS_NEW_WEEKLY_RECORD" and Clicker.db.profile.eventsEnabled.mPlusWkRecordEnabled then
-        print("(debug) Player set a new weekly Mythic+ record. Click Time!")
+        debugPrint("(debug) Player set a new weekly Mythic+ record. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New M+ Record!")
         end
     elseif event == "TRANSMOG_COLLECTION_SOURCE_ADDED" and Clicker.db.profile.eventsEnabled.newAppearanceEnabled then
-        print("(debug) Player added a new transmog source. Click Time!")
+        debugPrint("(debug) Player added a new transmog source. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Appearance!")
         end
     elseif event == "CHALLENGE_MODE_COMPLETED" and Clicker.db.profile.eventsEnabled.newCMEnabled then
-        print("(debug) Player completed a challenge mode. Click Time!")
+        debugPrint("(debug) Player completed a challenge mode. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("CM Complete!")
         end
     elseif event == "CHALLENGE_MODE_NEW_RECORD" and Clicker.db.profile.eventsEnabled.newCMRecordEnabled then
-        print("(debug) Player set a new challenge mode record. Click Time!")
+        debugPrint("(debug) Player set a new challenge mode record. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New CM Record!")
@@ -576,7 +582,7 @@ end
 
 
 function Clicker:createToastFrame(mFrame)
-    local clickerTF = CreateFrame("Button", "Achievement", mFrame)
+    local clickerTF = CreateFrame("Button", "clickerAchievePopup", mFrame)
     clickerTF:SetSize(300, 88)
     clickerTF:SetFrameStrata("DIALOG")
     clickerTF:SetIgnoreParentAlpha(true)
@@ -630,25 +636,25 @@ function Clicker:createToastFrame(mFrame)
         end
     end)
 
-        clickerTF.background = clickerTF:CreateTexture("background", "BACKGROUND")
+        clickerTF.background = clickerTF:CreateTexture("clickerTFBackground", "BACKGROUND")
         clickerTF.background:SetTexture(addonpath .. "Media\\ui-achievement-alert-background")
         clickerTF.background:SetPoint("TOPLEFT", 0, 0)
         clickerTF.background:SetPoint("BOTTOMRIGHT", 0, 0)
         clickerTF.background:SetTexCoord(0, .605, 0, .703)
 
-        clickerTF.toastGreet = clickerTF:CreateFontString("ToastGreet", "OVERLAY", "GameFontBlack")
+        clickerTF.toastGreet = clickerTF:CreateFontString("clickerTFToastGreet", "OVERLAY", "GameFontBlack")
         clickerTF.toastGreet:SetSize(280, 12)
         clickerTF.toastGreet:SetPoint("TOP", 8, -23)
         clickerTF.toastGreet:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 16, "OUTLINE")
 
-        clickerTF.eventName = clickerTF:CreateFontString("Name", "OVERLAY", "GameFontHighlight")
+        clickerTF.eventName = clickerTF:CreateFontString("clickerTFEventName", "OVERLAY", "GameFontHighlight")
         clickerTF.eventName:SetSize(280, 16)
-        clickerTF.eventName:SetPoint("BOTTOMLEFT", 77, 35)
-        clickerTF.eventName:SetPoint("BOTTOMRIGHT", -60, 35)
-        clickerTF.eventName:SetJustifyH("LEFT")
+        clickerTF.eventName:SetPoint("BOTTOMLEFT", 0, 35)
+        clickerTF.eventName:SetPoint("BOTTOMRIGHT", 0, 35)
+        clickerTF.eventName:SetJustifyH("CENTER")
         clickerTF.eventName:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 14, "")
 
-        clickerTF.glow = clickerTF:CreateTexture("glow", "OVERLAY")
+        clickerTF.glow = clickerTF:CreateTexture("clickerTFGlow", "OVERLAY")
         clickerTF.glow:SetTexture(addonpath .. "Media\\ui-achievement-alert-glow")
         clickerTF.glow:SetBlendMode("ADD")
         clickerTF.glow:SetWidth(400)
@@ -657,7 +663,7 @@ function Clicker:createToastFrame(mFrame)
         clickerTF.glow:SetTexCoord(0, 0.78125, 0, 0.66796875)
         clickerTF.glow:SetAlpha(0)
 
-        clickerTF.shine = clickerTF:CreateTexture("shine", "OVERLAY")
+        clickerTF.shine = clickerTF:CreateTexture("clickerTFShine", "OVERLAY")
         clickerTF.shine:SetBlendMode("ADD")
         clickerTF.shine:SetTexture(addonpath .. "Media\\ui-achievement-alert-glow")
         clickerTF.shine:SetWidth(67)
@@ -666,24 +672,24 @@ function Clicker:createToastFrame(mFrame)
         clickerTF.shine:SetTexCoord(0.78125, 0.912109375, 0, 0.28125)
         clickerTF.shine:SetAlpha(0)
 
-        clickerTF.icon = CreateFrame("Frame", "icon", clickerTF)
+        clickerTF.icon = CreateFrame("Frame", "clickerTFicon", clickerTF)
         clickerTF.icon:SetWidth(124)
         clickerTF.icon:SetHeight(124)
         clickerTF.icon:SetPoint("TOPLEFT", -26, 16)
 
-        clickerTF.icon.bling = clickerTF.icon:CreateTexture("bling", "BORDER")
+        clickerTF.icon.bling = clickerTF.icon:CreateTexture("clickerTFIconBling", "BORDER")
         clickerTF.icon.bling:SetTexture(addonpath .. "Media\\ui-achievement-bling")
         clickerTF.icon.bling:SetPoint("CENTER", -1, 1)
         clickerTF.icon.bling:SetWidth(116)
         clickerTF.icon.bling:SetHeight(116)
 
         --Exclamation mark icon
-        clickerTF.icon.text = clickerTF:CreateFontString("Icon", "OVERLAY", "GameFontHighlight")
+        clickerTF.icon.text = clickerTF:CreateFontString("clickerTFIconText", "OVERLAY", "GameFontHighlight")
         clickerTF.icon.text:SetSize(64, 64)
         clickerTF.icon.text:SetPoint("LEFT", 2, -4)
         clickerTF.icon.text:SetFont(addonpath .. "Media\\WinterLandByJd-Bold.ttf", 48, "")
         
-        clickerTF.icon.overlay = clickerTF.icon:CreateTexture("overlay", "OVERLAY")
+        clickerTF.icon.overlay = clickerTF.icon:CreateTexture("clickerTFIconOverlay", "OVERLAY")
         clickerTF.icon.overlay:SetTexture(addonpath .. "Media\\ui-achievement-iconframe")
         clickerTF.icon.overlay:SetPoint("CENTER", -1, 2)
         clickerTF.icon.overlay:SetHeight(72)
@@ -740,17 +746,17 @@ local function canBark(chatType)
 	end
 end
 
-local makeBark = C_ChatInfo.SendChatMessage
+local makeBark
 
 local function getRandomSpeak()
     return speaks[math.random(#speaks)]
 end
 
-function C_ChatInfo.SendChatMessage(msg, chatType, ...)
+local function bark(msg, chatType, ...)
     if canBark(chatType) then
         --Replace all words with a random word from the speaks table
         if Clicker.db.profile.debug then
-            print("(debug) Barking in chat!")
+            debugPrint("(debug) Barking in chat!")
         end
         msg = string.gsub(msg, "%w+", function(word)
             return getRandomSpeak()
@@ -760,3 +766,14 @@ function C_ChatInfo.SendChatMessage(msg, chatType, ...)
         makeBark(msg, chatType, ...)
     end
 end
+
+if C_ChatInfo.SendChatMessage then
+    makeBark = C_ChatInfo.SendChatMessage
+    C_ChatInfo.SendChatMessage = bark
+else
+    makeBark = SendChatMessage
+    SendChatMessage = bark
+end
+
+
+
