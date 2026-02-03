@@ -173,7 +173,7 @@ function Clicker:BuildOptionsPanel()
                         type = "multiselect",
                         name = "Event Selection",
                         desc = "Which events do you want to receive clicks for?",
-                        hidden = function() return not (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) end,
+                        hidden = function() return not (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC) end,
                         order = 2.1,
                         values = {
                             levelUpEnabled = "Level Up",
