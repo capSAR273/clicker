@@ -17,6 +17,7 @@ Clicker.max_window = 5
 Lwin = LibStub("LibWindow-1.1")
 
 function Clicker:BuildOptionsPanel()
+    Clicker:updateColorCode()
     local options = {
         name = "Clicker Addon Configuration",
         handler = Clicker,
@@ -26,7 +27,7 @@ function Clicker:BuildOptionsPanel()
 				type = "description",
 				fontSize = "large",
 				order = 1,
-				name = "                             |c" .. Clicker.db.profile.clickChatColor .. "Clicker: v" .. GetAddOnMetadata("Clicker", "Version"),
+				name = function() return "                             |c" .. Clicker.db.profile.clickChatHex .. "Clicker: v" .. GetAddOnMetadata("Clicker", "Version") end,
             },
             authorText = {
 				type = "description",
@@ -38,7 +39,7 @@ function Clicker:BuildOptionsPanel()
                 type = "description",
                 fontSize = "medium",
                 order = 3,
-                name = function() return ("Total Clicks Recorded: |c" .. Clicker.db.profile.clickChatColor .. "%d"):format(Clicker.db.profile.numClicks) end
+                name = function() return ("Total Clicks Recorded: |c" .. Clicker.db.profile.clickChatHex .. "%d"):format(Clicker.db.profile.numClicks) end
             },
             main = {
                 name = "General Options",
@@ -90,12 +91,19 @@ function Clicker:BuildOptionsPanel()
                         end,
                     },
                     clickChatColor = {
-                        type = "input",
+                        type = "color",
                         name = "Click Chat Color",
-                        desc = "Enter an 8 digit hex color code here for the Clicker texts. Example: FF36F7BC for a light blue color.",
+                        desc = "Click the swatch to set the color of the Clicker chat messages.",
                         order = 1.5,
-                        get = function(info) return Clicker.db.profile.clickChatColor end,
-                        set = function(info, value) Clicker.db.profile.clickChatColor = value end,
+                        hasAlpha = true,
+                        get = function()
+                            local color = Clicker.db.profile.clickChatColor
+                            return color.r, color.g, color.b, color.a
+                        end,
+                        set = function(_,r,g,b,a)
+                            Clicker.db.profile.clickChatColor = {r = r, g = g, b = b, a = a}
+                            Clicker:updateColorCode()
+                        end,
                     },
                     secretSetting = {
                         type = "toggle",
@@ -165,26 +173,60 @@ function Clicker:BuildOptionsPanel()
                         type = "multiselect",
                         name = "Event Selection",
                         desc = "Which events do you want to receive clicks for?",
+                        hidden = function() return not (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) end,
                         order = 2.1,
                         values = {
                             levelUpEnabled = "Level Up",
-                            achievementEnabled = "Achievement Unlocked",
-                            newPetEnabled = "New Pet Unlocked",
                             questCompleteEnabled = "Quest Complete",
-                            newHouseLvlEnabled = "New House Level Unlocked",
-                            newMountEnabled = "New Mount Unlocked",
-                            newHousingItemEnabled = "New Housing Item Unlocked",
-                            newToyEnabled = "New Toy Unlocked",
-                            bMarketWinEnabled = "BMAH Item Won",
-                            mPlusWkRecordEnabled = "Mythic+ Weekly Record",
-                            newCMEnabled = "New Challenge Mode",
-                            newCMRecordEnabled = "New Challenge Mode Record",
-                            newAppearanceEnabled = "New Appearance Unlocked",
                             pvpKillEnabled = "PvP Kill",
                         },
                         get = function(info, key) return Clicker.db.profile.eventsEnabled[key] end,
                         set = function(info, key, value) Clicker.db.profile.eventsEnabled[key] = value end,
                     },
+                    enabledMistsEvents = {
+                        type = "multiselect",
+                        name = "MoP Event Selection",
+                        desc = "Which events do you want to receive clicks for?",
+                        hidden = function() return not (WOW_PROJECT_ID == 19) end,
+                        order = 2.1,
+                        values = {
+                            newCMEnabled = "New Challenge Mode",
+                            newCMRecordEnabled = "New Challenge Mode Record",                            
+                        },
+                        get = function(info, key) return Clicker.db.profile.eventsEnabled[key] end,
+                        set = function(info, key, value) Clicker.db.profile.eventsEnabled[key] = value end,
+                    },
+                    enabledMainlineEvents = {
+                        type = "multiselect",
+                        name = "Retail Event Selection",
+                        desc = "Which events do you want to receive clicks for?",
+                        hidden = function() return not (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) end,
+                        order = 2.1,
+                        values = {
+                            newHousingItemEnabled = "New Housing Item Unlocked",
+                            mPlusWkRecordEnabled = "Mythic+ Weekly Record",
+                            newHouseLvlEnabled = "New House Level Unlocked",
+                        },
+                        get = function(info, key) return Clicker.db.profile.eventsEnabled[key] end,
+                        set = function(info, key, value) Clicker.db.profile.eventsEnabled[key] = value end,
+                    },
+                    enabledMistsMainlineEvents = {
+                        type = "multiselect",
+                        name = "Other Event Selection",
+                        desc = "Which events do you want to receive clicks for?",
+                        hidden = function() return not (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == 19) end,
+                        order = 2.1,
+                        values = {
+                            achievementEnabled = "Achievement Unlocked",
+                            newPetEnabled = "New Pet Unlocked",
+                            newToyEnabled = "New Toy Unlocked",
+                            bMarketWinEnabled = "BMAH Item Won",
+                            newMountEnabled = "New Mount Unlocked",
+                            newAppearanceEnabled = "New Appearance Unlocked",
+                        },
+                        get = function(info, key) return Clicker.db.profile.eventsEnabled[key] end,
+                        set = function(info, key, value) Clicker.db.profile.eventsEnabled[key] = value end,
+                    }
                 }
             },
             easterEgg = {
@@ -230,7 +272,8 @@ function Clicker:OnInitialize()
             clickerEnabled = true,
             toastEnabled = true,
             toastText = "Good Job!",
-            clickChatColor = "FFFF73A5",
+            clickChatColor = {r = 1.0, g = 0.45, b = 0.65, a = 1.0},
+            clickChatHex = "FFFF73A5",
             muted = false,
             soundChannel = "Master",
             volumeLevel = "clicker",
@@ -266,6 +309,13 @@ function Clicker:OnInitialize()
     }
 end
 
+function Clicker:updateColorCode()
+    Clicker.db.profile.clickChatHex = CreateColor(Clicker.db.profile.clickChatColor.r, 
+                            Clicker.db.profile.clickChatColor.g, 
+                            Clicker.db.profile.clickChatColor.b, 
+                            Clicker.db.profile.clickChatColor.a):GenerateHexColor()
+end
+
 function Clicker:regCommands(mFrame)
     SLASH_CLICKER1 = "/clicker"
     SlashCmdList["CLICKER"] = function(msg, editbox)
@@ -293,7 +343,7 @@ function Clicker:regCommands(mFrame)
             self.db.profile.clickerEnabled = true
             self.db.profile.toastEnabled = true
             self.db.profile.toastText = "Good Job!"
-            self.db.profile.clickChatColor = "FFFF73A5"
+            self.db.profile.clickChatColor = {r = 1.0, g = 0.45, b = 0.65, a = 1.0}
             self.db.profile.muted = false
             self.db.profile.soundChannel = "Master"
             self.db.profile.volumeLevel = "Default"
@@ -356,7 +406,8 @@ function Clicker:OnEnable()
     for i=1, Clicker.max_window do
         Clicker.window[i] = Clicker:createToastFrame(mFrame)
         Clicker.window[i]:SetPoint("BOTTOM", 0, -100 + (100*i))
-    end 
+    end
+    Clicker:updateColorCode()
     Clicker:regCommands(mFrame)
     Lwin.RestorePosition(mFrame)
     Clicker:registerEvents()
@@ -382,7 +433,7 @@ function Clicker:playClick()
     if not Clicker.db.profile.muted and Clicker.db.profile.clickerEnabled then
         PlaySoundFile(addonpath .."Media\\" .. Clicker.db.profile.volumeLevel .. ".ogg", Clicker.db.profile.soundChannel)
         Clicker.db.profile.numClicks = Clicker.db.profile.numClicks + 1
-        print("|c" .. Clicker.db.profile.clickChatColor .. "Click! " .. Clicker.db.profile.toastText .. " You have clicked " .. Clicker.db.profile.numClicks .. " times.|r")
+        print("|c" .. Clicker.db.profile.clickChatHex .. "Click! " .. Clicker.db.profile.toastText .. " You have clicked " .. Clicker.db.profile.numClicks .. " times.|r")
     end
 end
 
@@ -493,22 +544,34 @@ local function eventHandler(self,event, ...)
 end
 
 function Clicker:registerEvents()
-    --Register events to watch here
+    --Events that fit all versions
     eventListenerFrame:SetScript("OnEvent", eventHandler)
+    eventListenerFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     eventListenerFrame:RegisterEvent("PLAYER_LEVEL_UP")
-    eventListenerFrame:RegisterEvent("ACHIEVEMENT_EARNED")
-    eventListenerFrame:RegisterEvent("NEW_PET_ADDED")
     eventListenerFrame:RegisterEvent("ZONE_CHANGED")
-    eventListenerFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-    eventListenerFrame:RegisterEvent("CHALLENGE_MODE_NEW_RECORD")
     eventListenerFrame:RegisterEvent("QUEST_TURNED_IN")
-    eventListenerFrame:RegisterEvent("HOUSE_LEVEL_CHANGED")
-    eventListenerFrame:RegisterEvent("NEW_MOUNT_ADDED")
-    eventListenerFrame:RegisterEvent("NEW_HOUSING_ITEM_ACQUIRED")
-    eventListenerFrame:RegisterEvent("NEW_TOY_ADDED")
-    eventListenerFrame:RegisterEvent("BLACK_MARKET_WON")
-    eventListenerFrame:RegisterEvent("MYTHIC_PLUS_NEW_WEEKLY_RECORD")
-    eventListenerFrame:RegisterEvent("TRANSMOG_COLLECTION_SOURCE_ADDED")
+    --Mists unique events
+    if WOW_PROJECT_ID == 19 then
+        eventListenerFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
+        eventListenerFrame:RegisterEvent("CHALLENGE_MODE_NEW_RECORD")
+    end
+
+    --Retail unique events
+    if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+        eventListenerFrame:RegisterEvent("HOUSE_LEVEL_CHANGED")
+        eventListenerFrame:RegisterEvent("NEW_HOUSING_ITEM_ACQUIRED")
+        eventListenerFrame:RegisterEvent("MYTHIC_PLUS_NEW_WEEKLY_RECORD")
+    end
+
+    --Retail or Mists events
+    if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == 19 then
+        eventListenerFrame:RegisterEvent("NEW_MOUNT_ADDED")
+        eventListenerFrame:RegisterEvent("TRANSMOG_COLLECTION_SOURCE_ADDED")
+        eventListenerFrame:RegisterEvent("NEW_TOY_ADDED")
+        eventListenerFrame:RegisterEvent("BLACK_MARKET_WON")
+        eventListenerFrame:RegisterEvent("ACHIEVEMENT_EARNED")
+        eventListenerFrame:RegisterEvent("NEW_PET_ADDED")
+    end
 end
 
 
@@ -636,9 +699,9 @@ function Clicker:showToast(text)
     end
     for i=1, Clicker.max_window do
         if not Clicker.window[i]:IsVisible() then
-            Clicker.window[i].toastGreet:SetText("|c" .. Clicker.db.profile.clickChatColor .. Clicker.db.profile.toastText .. "|r")
-            Clicker.window[i].eventName:SetText("|c" .. Clicker.db.profile.clickChatColor .. text .. "|r")
-            Clicker.window[i].icon.text:SetText("|c" .. Clicker.db.profile.clickChatColor .. "!" .. "|r")
+            Clicker.window[i].toastGreet:SetText("|c" .. Clicker.db.profile.clickChatHex .. Clicker.db.profile.toastText .. "|r")
+            Clicker.window[i].eventName:SetText("|c" .. Clicker.db.profile.clickChatHex .. text .. "|r")
+            Clicker.window[i].icon.text:SetText("|c" .. Clicker.db.profile.clickChatHex .. "!" .. "|r")
             Clicker.window[i]:Show()
             return
         end

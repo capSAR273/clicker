@@ -55,7 +55,7 @@
             "problemMatcher": []
         },
         {
-            "label": "Copy Folder to Classic",
+            "label": "Copy Folder to Mists",
             "type": "shell",
             "command": "xcopy",
             "args": [
