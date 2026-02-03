@@ -163,8 +163,8 @@ function Clicker:BuildOptionsPanel()
 					},
                     enabledEvents = {
                         type = "multiselect",
-                        name = "Allowed Chat Channels",
-                        desc = "Which chat channels allow modified speech?",
+                        name = "Event Selection for Clicks",
+                        desc = "Which events do you want to receive clicks for?",
                         order = 3.1,
                         values = {
                             levelUpEnabled = "Level Up",
@@ -177,8 +177,10 @@ function Clicker:BuildOptionsPanel()
                             newToyEnabled = "New Toy Unlocked",
                             bMarketWinEnabled = "BMAH Item Won",
                             mPlusWkRecordEnabled = "Mythic+ Weekly Record",
+                            newCMEnabled = "New Challenge Mode",
+                            newCMRecordEnabled = "New Challenge Mode Record",
                             newAppearanceEnabled = "New Appearance Unlocked",
-                            pvpKill = "PvP Kill",
+                            pvpKillEnabled = "PvP Kill",
                         },
                         get = function(info, key) return Clicker.db.profile.eventsEnabled[key] end,
                         set = function(info, key, value) Clicker.db.profile.eventsEnabled[key] = value end,
@@ -245,8 +247,10 @@ function Clicker:OnInitialize()
                 newToyEnabled = true,
                 bMarketWinEnabled = true,
                 mPlusWkRecordEnabled = true,
+                newCMEnabled = true,
+                newCMRecordEnabled = true,
                 newAppearanceEnabled = true,
-                pvpKill = true,
+                pvpKillEnabled = true,
             },
             speakChannels = {
                 say = false,
@@ -362,7 +366,7 @@ local kbTracker = CreateFrame("Frame", "KBTracker", UIParent)
 local function kbHandler(...)
     local sourceGUID = select(4, ...)
     local subevent = select(2, ...)
-    if subevent == "PARTY_KILL" and sourceGUID == Clicker.playerGUID and Clicker.db.profile.eventsEnabled.pvpKill then
+    if subevent == "PARTY_KILL" and sourceGUID == Clicker.playerGUID and Clicker.db.profile.eventsEnabled.pvpKillEnabled then
         print("Player killed an enemy. Click Time!.")
         Clicker:playClick()
     end
@@ -407,13 +411,13 @@ local function eventHandler(self,event, ...)
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("Level Up! Woohoo!")
         end
-    elseif event == "ACHIEVEMENT_EARNED" and Clicker.db.profile.eventsEnabled.newAchieve then
+    elseif event == "ACHIEVEMENT_EARNED" and Clicker.db.profile.eventsEnabled.achievementEnabled then
         print("(debug) Player earned an achievement. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("Fresh Achievement!")
         end
-    elseif event == "NEW_PET_ADDED" and Clicker.db.profile.eventsEnabled.newPet then
+    elseif event == "NEW_PET_ADDED" and Clicker.db.profile.eventsEnabled.newPetEnabled then
         print("(debug) Player added a new pet to their collection. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
@@ -425,61 +429,61 @@ local function eventHandler(self,event, ...)
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast(pickRandEvent())
         end
-    elseif event == "QUEST_TURNED_IN" and Clicker.db.profile.eventsEnabled.questComplete then
+    elseif event == "QUEST_TURNED_IN" and Clicker.db.profile.eventsEnabled.questCompleteEnabled then
         print("(debug) Player completed a quest. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("Quest Complete!")
         end
-    elseif event == "HOUSE_LEVEL_CHANGED" and Clicker.db.profile.eventsEnabled.newHouseLvl then
+    elseif event == "HOUSE_LEVEL_CHANGED" and Clicker.db.profile.eventsEnabled.newHouseLvlEnabled then
         print("(debug) Player increased house level. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("House Level Increased!")
         end
-    elseif event == "NEW_MOUNT_ADDED" and Clicker.db.profile.eventsEnabled.newMount then
+    elseif event == "NEW_MOUNT_ADDED" and Clicker.db.profile.eventsEnabled.newMountEnabled then
         print("(debug) Player added a new mount. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Mount Unlocked!")
         end
-    elseif event == "NEW_HOUSING_ITEM_ACQUIRED" and Clicker.db.profile.eventsEnabled.newHousingItem then
+    elseif event == "NEW_HOUSING_ITEM_ACQUIRED" and Clicker.db.profile.eventsEnabled.newHousingItemEnabled then
         print("(debug) Player acquired a new housing item. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Housing Item!")
         end
-    elseif event == "NEW_TOY_ADDED" and Clicker.db.profile.eventsEnabled.newToy then
+    elseif event == "NEW_TOY_ADDED" and Clicker.db.profile.eventsEnabled.newToyEnabled then
         print("(debug) Player acquired a new toy. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Toy Added!")
         end
-    elseif event == "BLACK_MARKET_WON" and Clicker.db.profile.eventsEnabled.bMarketWin then
+    elseif event == "BLACK_MARKET_WON" and Clicker.db.profile.eventsEnabled.bMarketWinEnabled then
         print("(debug) Player won a BMAH bid. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("BMAH Bid Won!")
         end
-    elseif event == "MYTHIC_PLUS_NEW_WEEKLY_RECORD" and Clicker.db.profile.eventsEnabled.mPlusWkRecord then
+    elseif event == "MYTHIC_PLUS_NEW_WEEKLY_RECORD" and Clicker.db.profile.eventsEnabled.mPlusWkRecordEnabled then
         print("(debug) Player set a new weekly Mythic+ record. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New M+ Record!")
         end
-    elseif event == "TRANSMOG_COLLECTION_SOURCE_ADDED" and Clicker.db.profile.eventsEnabled.newAppearance then
+    elseif event == "TRANSMOG_COLLECTION_SOURCE_ADDED" and Clicker.db.profile.eventsEnabled.newAppearanceEnabled then
         print("(debug) Player added a new transmog source. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("New Appearance!")
         end
-    elseif event == "CHALLENGE_MODE_COMPLETED" and Clicker.db.profile.eventsEnabled.newChallengeMode then
+    elseif event == "CHALLENGE_MODE_COMPLETED" and Clicker.db.profile.eventsEnabled.newCMEnabled then
         print("(debug) Player completed a challenge mode. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then
             Clicker:showToast("CM Complete!")
         end
-    elseif event == "CHALLENGE_MODE_NEW_RECORD" and Clicker.db.profile.eventsEnabled.newChallengeModeRecord then
+    elseif event == "CHALLENGE_MODE_NEW_RECORD" and Clicker.db.profile.eventsEnabled.newCMRecordEnabled then
         print("(debug) Player set a new challenge mode record. Click Time!")
         Clicker:playClick()
         if Clicker.db.profile.toastEnabled then

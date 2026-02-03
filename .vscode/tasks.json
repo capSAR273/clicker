@@ -19,6 +19,57 @@
                 "reveal": "always"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Copy Folder to Retail",
+            "type": "shell",
+            "command": "xcopy",
+            "args": [
+                "/E",
+                "/I",
+                "/Y",
+                "${workspaceFolder}",
+                "C:\\Super Fast Games\\World of Warcraft\\_retail_\\Interface\\AddOns\\Clicker"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Copy Folder to Classic Era",
+            "type": "shell",
+            "command": "xcopy",
+            "args": [
+                "/E",
+                "/I",
+                "/Y",
+                "${workspaceFolder}",
+                "C:\\Super Fast Games\\World of Warcraft\\_classic_era_\\Interface\\AddOns\\Clicker"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Copy Folder to Classic",
+            "type": "shell",
+            "command": "xcopy",
+            "args": [
+                "/E",
+                "/I",
+                "/Y",
+                "${workspaceFolder}",
+                "C:\\Super Fast Games\\World of Warcraft\\_classic_\\Interface\\AddOns\\Clicker"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
         }
     ]
 }
